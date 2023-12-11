@@ -1,0 +1,106 @@
+package iut.info1.sae.create;
+
+import iut.info1.sae.labyrinthe.Cellule;
+
+import java.util.Random;
+
+public class CreationAscendante {
+
+    private Cellule[][] labyrinthe;
+    private int largeur;
+    private int hauteur;
+    private int[][] marques;
+
+    /**
+     * TODO
+     */
+    public CreationAscendante(int largeur, int hauteur) {
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+
+        this.labyrinthe = new Cellule[hauteur][largeur];
+
+        this.marques = new int[hauteur][largeur];
+
+        // Initialize all cells in the labyrinth
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                marques[i][j] = 0;
+                labyrinthe[i][j] = new Cellule(new boolean[]{true, true, true, true});
+            }
+        }
+
+
+        Cellule premiereCellule = getCelluleAleatoire();
+        Cellule deuxiemeCellule = getCelluleAdjacente(premiereCellule);
+        
+    }
+
+    /**
+     * TODO
+     */
+    public int[] coord(Cellule cellule) {
+        int[] coordonnees = new int[2];
+
+        // Recherche des coordonnées de la cellule donnée
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (labyrinthe[i][j] == cellule) {
+                    coordonnees[0] = i; // Hauteur
+                    coordonnees[1] = j; // Largeur
+                    break;
+                }
+            }
+        }
+
+        return coordonnees;
+    }
+
+    /**
+     * TODO
+     */
+    public Cellule getCelluleAleatoire() {
+        Random random = new Random();
+        int randomHauteur = random.nextInt(hauteur);
+        int randomLargeur = random.nextInt(largeur);
+
+        return labyrinthe[randomHauteur][randomLargeur];
+    }
+
+    /**
+     * TODO
+     */
+    public Cellule getCelluleAdjacente(int hauteurCellule, int largeurCellule) {
+        Random random = new Random();
+        Cellule celluleAdjacente = null;
+
+        // Choisir aléatoirement une cellule adjacente
+        int randomDirection = random.nextInt(4);
+
+        switch (randomDirection) {
+            case 0: // Nord
+                if (hauteurCellule > 0) {
+                    celluleAdjacente = labyrinthe[hauteurCellule - 1][largeurCellule];
+                }
+                break;
+            case 1: // Sud
+                if (hauteurCellule < hauteur - 1) {
+                    celluleAdjacente = labyrinthe[hauteurCellule + 1][largeurCellule];
+                }
+                break;
+            case 2: // Est
+                if (largeurCellule < largeur - 1) {
+                    celluleAdjacente = labyrinthe[hauteurCellule][largeurCellule + 1];
+                }
+                break;
+            case 3: // Ouest
+                if (largeurCellule > 0) {
+                    celluleAdjacente = labyrinthe[hauteurCellule][largeurCellule - 1];
+                }
+                break;
+        }
+
+        return celluleAdjacente;
+    }
+}
+

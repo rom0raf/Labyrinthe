@@ -1,0 +1,75 @@
+package iut.info1.sae.create;
+
+import iut.info1.sae.labyrinthe.*;
+import iut.info1.sae.pile.Pile;
+import java.util.*;
+
+public class CreationBacktracking() {
+
+    public void generer() {
+        Random random = new Random();
+        Pile pile = new Pile();
+        Cellule sommetCourant = grille[0][0]; // Sommet initial
+        sommetCourant.modifierMur('N', false); // Ouvrir une porte pour démarrer
+
+        pile.empiler(new Coordonnees(0, 0)); // Empiler le sommet initial
+
+        while (!pile.estVide()) {
+            Coordonnees coord = (Coordonnees) pile.sommet();
+            int x = coord.getX();
+            int y = coord.getY();
+
+            // Chercher les voisins non parcourus
+            Coordonnees[] voisins = getVoisinsNonParcourus(x, y);
+
+            if (voisins.length == 0) {
+                // Tous les voisins sont déjà parcourus, dépiler le sommet courant
+                pile.depiler();
+            } else {
+                // Choisir aléatoirement un voisin non parcouru
+                Coordonnees voisin = voisins[random.nextInt(voisins.length)];
+
+                // "Casser le mur" entre le sommet courant et le voisin
+                if (voisin.getX() < x) {
+                    sommetCourant.modifierMur('O', false);
+                    grille[voisin.getX()][voisin.getY()].modifierMur('E', false);
+                } else if (voisin.getX() > x) {
+                    sommetCourant.modifierMur('E', false);
+                    grille[voisin.getX()][voisin.getY()].modifierMur('O', false);
+                } else if (voisin.getY() < y) {
+                    sommetCourant.modifierMur('N', false);
+                    grille[voisin.getX()][voisin.getY()].modifierMur('S', false);
+                } else if (voisin.getY() > y) {
+                    sommetCourant.modifierMur('S', false);
+                    grille[voisin.getX()][voisin.getY()].modifierMur('N', false);
+                }
+
+                // Marquer le voisin comme parcouru et empiler dans la pile
+                grille[voisin.getX()][voisin.getY()].modifierMur('P', true);
+                pile.empiler(voisin);
+
+                sommetCourant = grille[voisin.getX()][voisin.getY()]; // Mettre à jour le sommet courant
+            }
+        }
+    }
+
+    private Coordonnees[] getVoisinsNonParcourus(int x, int y) {
+        Coordonnees[] voisins = new Coordonnees[4];
+        int count = 0;
+
+        if (x - 1 >= 0 && !grille[x - 1][y].estMurPresent('P')) {
+            voisins[count++] = new Coordonnees(x - 1, y);
+        }
+        if (x + 1 < taille && !grille[x + 1][y].estMurPresent('P')) {
+            voisins[count++] = new Coordonnees(x + 1, y);
+        }
+        if (y - 1 >= 0 && !grille[x][y - 1].estMurPresent('P')) {
+            voisins[count++] = new Coordonnees(x, y - 1);
+        }
+        if (y + 1 < taille && !grille[x][y + 1].estMurPresent('P')) {
+            voisins[count++] = new Coordonnees(x, y + 1);
+        }
+
+        return Arrays.copyOf(voisins, count);
+    }
+}

@@ -1,0 +1,65 @@
+/**
+ * TestCellule.java          16/04/2023
+ * Aucun copyright ni "copyleft"
+ */
+package iut.info1.sae.tests;
+
+import iut.info1.sae.labyrinthe.Cellule;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+
+/**
+ * Classe de test pour la classe Cellule du package iut.info1.sae.labyrinthe.
+ * Utilise le framework JUnit pour effectuer des tests unitaires.
+ * Les tests couvrent les méthodes publiques de la classe Cellule.
+ *
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+class TestsCellule {
+
+    /**
+     * Teste le constructeur Cellule avec différents tableaux de murs.
+     */
+    @Test
+    public void testConstructeurCellule() {
+        
+        // Tableau de murs valides
+        boolean[] mursValides = {true, false, true, false};
+        Assertions.assertDoesNotThrow(() -> new Cellule(mursValides), "Le constructeur aurait dû créer la cellule sans générer d'exception");
+
+        // Tableau de murs avec tous les murs présents
+        boolean[] mursPresents = {true, true, true, true};
+        Assertions.assertDoesNotThrow(() -> new Cellule(mursPresents), "Le constructeur aurait dû créer la cellule sans générer d'exception");
+
+        // Tableau de murs avec aucun mur présent
+        boolean[] mursAbsents = {false, false, false, false};
+        Assertions.assertDoesNotThrow(() -> new Cellule(mursAbsents), "Le constructeur aurait dû créer la cellule sans générer d'exception");
+
+        // Tableau de murs invalide (trop court)
+        boolean[] mursInvalideCourt = {true, false, true};
+        Assert.assertThrows("Le constructeur aurait dû générer une exception", IllegalArgumentException.class, () -> new Cellule(mursInvalideCourt));
+
+        // Tableau de murs invalide (trop long)
+        boolean[] mursInvalideLong = {true, false, true, false, true};
+        Assert.assertThrows("Le constructeur aurait dû générer une exception", IllegalArgumentException.class, () -> new Cellule(mursInvalideLong));
+    }
+
+    /**
+     * Teste la méthode estMurPresent de la classe Cellule avec des tableaux de murs valides.
+     */
+    @Test
+    public void testEstMurPresent() {
+        boolean[] murs = {true, false, true, false};
+        Cellule cellule = new Cellule(murs);
+
+        // Teste chaque direction pour vérifier si la méthode renvoie la valeur attendue
+        Assert.assertTrue("Le mur Nord devrait être présent", cellule.estMurPresent('N'));
+        Assert.assertFalse("Le mur Sud ne devrait pas être présent", cellule.estMurPresent('S'));
+        Assert.assertTrue("Le mur Est devrait être présent", cellule.estMurPresent('E'));
+        Assert.assertFalse("Le mur Ouest ne devrait pas être présent", cellule.estMurPresent('O'));
+    }
+}

@@ -1,0 +1,158 @@
+/*
+ * CreationLabyrinthe.java    16/05/2023
+ * Aucun copyrights ni "copylefts"
+ */
+
+package iut.info1.sae.create;
+
+import iut.info1.sae.labyrinthe.*;
+import iut.info1.sae.pile.Pile;
+import java.util.Random;
+
+/**
+ * classe creationLabyrinthe
+ * elle crée le labyrinthe de deux manières différentes : 
+ * - par création ascendante de chaînes
+ * - par descente en profondeur
+ * 
+ * @author Antonin Veyre
+ * @author Aurélien Soleil
+ * @author Lohan Vignals
+ * @author Rafael Roma
+ */
+public class CreationLabyrinthe {
+
+        
+    /**
+    * création du labyrinthe par création ascendante de chaînes
+    * @param hauteur la hauteur du labyrinthe
+    * @param largeur la largeur du labyrinthe
+    * @return le labyrinthe créer
+    */
+   public static Labyrinthe creationAscendante(int hauteur, int largeur){
+      
+        Cellule[][] tableauLaby = new Cellule[hauteur][largeur];
+        int[][] marquesCellules = new int[hauteur][largeur];
+        int[][] marquesChaines = new int[hauteur][largeur];
+        int compteur;
+       
+        // Initialisation des marques
+        compteur = 0;
+        for(int i = 0; i < marquesCellules.length; i++) {
+            for(int j = 0; j < marquesCellules[i].length; j++) {
+                marquesCellules[i][j] = compteur;
+                marquesChaines[i][j] = 0;
+                compteur++;
+            }
+        }
+      
+        // Fermeture des cellules
+        for (int i = 0; i < tableauLaby.length; i++) {
+         	for (int j = 0; j < tableauLaby[i].length; j++) {
+       		    tableauLaby[i][j] = new Cellule(new boolean[] {true,true,true,true});
+       	    }
+        }
+      
+        // Récupération d'une première cellule aléatoire
+      
+        int yPremiereCellule = (int)(Math.random() * (tableauLaby.length));
+        int xPremiereCellule = (int)(Math.random() * (tableauLaby[0].length));
+      
+        Cellule premiereCellule = tableauLaby[yPremiereCellule][xPremiereCellule];
+      
+        int numeroPremiereCellule = marquesCellules[yPremiereCellule][xPremiereCellule];
+      
+        // Récupération de la direction vers laquelle choisir la deuxieme cellule
+        boolean[] directionsPossibles = {true, true, true, true}; // N, S, E, O
+      
+        if (yPremiereCellule == 0) {
+     	    directionsPossibles[0] = false;
+        }
+        if (yPremiereCellule == tableauLaby.length -1) {
+       	    directionsPossibles[1] = false;
+        }
+        if (xPremiereCellule == 0)  {
+       	    directionsPossibles[2] = false;
+        }
+        if (yPremiereCellule == tableauLaby[0].length -1)  {
+        	directionsPossibles[3] = false;
+        }
+      
+        if (directionsPossibles[0] == false && directionsPossibles[1] == false
+        	&& directionsPossibles[2] == false  && directionsPossibles[3] == false) {
+        	// TODO trouver une meilleure exception
+        	throw new IllegalArgumentException("Aucune direction possible");
+        }
+
+        int direction;
+        do {
+         	direction = (int)(Math.random() * (directionsPossibles.length));
+        } while (!directionsPossibles[direction]);
+      
+        int xDeuxiemeCellule = 0;
+        int yDeuxiemeCellule = 0;
+
+        // Récupération de la deuxième cellule
+        if (direction == 0) {
+         	xDeuxiemeCellule = xPremiereCellule - 1;
+         	yDeuxiemeCellule = yPremiereCellule;
+        } else if (direction == 1) {
+         	xDeuxiemeCellule = xPremiereCellule + 1;
+         	yDeuxiemeCellule = yPremiereCellule;
+        } else if (direction == 2) {
+         	xDeuxiemeCellule = xPremiereCellule;
+         	yDeuxiemeCellule = yPremiereCellule + 1;
+        } else if (direction == 3) {
+         	xDeuxiemeCellule = xPremiereCellule;
+         	yDeuxiemeCellule = yPremiereCellule - 1;
+        }
+      
+        Cellule deuxiemeCellule = tableauLaby[yDeuxiemeCellule][xDeuxiemeCellule];
+
+        // Destruction des murs
+        if (direction == 0) {
+        	premiereCellule.setMurs(false, 0);
+            deuxiemeCellule.setMurs(false, 1);
+        } else if (direction == 1) {
+        	premiereCellule.setMurs(false, 1);
+            deuxiemeCellule.setMurs(false, 0);
+        } else if (direction == 2) {
+        	premiereCellule.setMurs(false, 2);
+            deuxiemeCellule.setMurs(false, 3);
+        } else if (direction == 3) {
+        	premiereCellule.setMurs(false, 3);
+            deuxiemeCellule.setMurs(false, 2);
+        }
+
+        // Marquage de chaine des cellules
+        int marquePremiereCellule = marquesChaines[yPremiereCellule][xPremiereCellule];
+        int marqueDeuxiemeCellule = marquesChaines[yDeuxiemeCellule][xDeuxiemeCellule];
+
+        if (marquePremiereCellule != 0 && marqueDeuxiemeCellule == 0) {
+            marquesChaines[yDeuxiemeCellule][xDeuxiemeCellule] = marquePremiereCellule;
+        } else if (marquePremiereCellule == 0 && marqueDeuxiemeCellule != 0){
+            marquesChaines[yPremiereCellule][xPremiereCellule] = marqueDeuxiemeCellule;
+        }
+
+
+
+        
+      
+      
+       // Création du labyrinthe
+       Labyrinthe laby = new Labyrinthe(largeur, hauteur);
+      
+       for (int i = 0; i < tableauLaby.length; i++) {
+       	    for (int j = 0; j < tableauLaby[i].length; j++) {
+       		    laby.ajoutCellule(i, j, tableauLaby[i][j].estMurPresent('N'),
+       								tableauLaby[i][j].estMurPresent('S'),
+       								tableauLaby[i][j].estMurPresent('E'),
+       								tableauLaby[i][j].estMurPresent('O'));
+       	    }
+        }
+      
+       return laby;
+    }
+
+    
+}

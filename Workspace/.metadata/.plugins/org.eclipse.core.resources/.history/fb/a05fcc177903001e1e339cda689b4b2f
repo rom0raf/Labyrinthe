@@ -1,0 +1,317 @@
+/*
+ * CreationLabyrinthe.java    16/05/2023
+ * Aucun copyrights ni "copylefts"
+ */
+
+package iut.info1.sae.create;
+
+import iut.info1.sae.labyrinthe.*;
+import iut.info1.sae.pile.Pile;
+import java.util.Random;
+
+/**
+ * classe creationLabyrinthe
+ * elle crée le labyrinthe de deux manières différentes : 
+ * - par création ascendante de chaînes
+ * - par descente en profondeur
+ * 
+ * @author Antonin Veyre
+ * @author Aurélien Soleil
+ * @author Lohan Vignals
+ * @author Rafael Roma
+ */
+public class CreationLabyrinthe {
+        
+    /**
+    * création du labyrinthe par création ascendante de chaînes
+    * @param hauteur la hauteur du labyrinthe
+    * @param largeur la largeur du labyrinthe
+    * @return le labyrinthe créer
+    */
+    public static Labyrinthe creationAscendante(int hauteur, int largeur) {
+        Cellule[][] tableauLaby = new Cellule[hauteur][largeur];
+        int[][] marquesCellules = new int[hauteur][largeur];
+        int compteurMarques = 1;
+        int compteurAretes = 0;
+
+        // Initialisation des cellules et des marques
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                tableauLaby[i][j] = new Cellule(new boolean[]{true, true, true, true});
+                marquesCellules[i][j] = -1;
+            }
+        }
+
+        // Boucle principale de création d'arêtes
+        while (compteurAretes < (hauteur * largeur) - 1) {
+            // Sélection aléatoire d'une cellule
+            int xPremiereCellule = (int) (Math.random() * largeur);
+            int yPremiereCellule = (int) (Math.random() * hauteur);
+            Cellule premiereCellule = tableauLaby[yPremiereCellule][xPremiereCellule];
+
+            // Vérification si la cellule est déjà marquée
+            if (marquesCellules[yPremiereCellule][xPremiereCellule] != -1) {
+                continue; // Passer à l'itération suivante si la cellule est déjà marquée
+            }
+
+            // Numérotation de la cellule et marque
+            marquesCellules[yPremiereCellule][xPremiereCellule] = compteurMarques;
+
+            // Recherche d'un voisin non marqué
+            int xDeuxiemeCellule = -1;
+            int yDeuxiemeCellule = -1;
+
+            boolean voisinTrouve = false;
+
+            while (!voisinTrouve) {
+                int direction = (int) (Math.random() * 4);
+
+                switch (direction) {
+                    case 0: // Nord
+                        if (yPremiereCellule > 0 && marquesCellules[yPremiereCellule - 1][xPremiereCellule] == -1) {
+                            xDeuxiemeCellule = xPremiereCellule;
+                            yDeuxiemeCellule = yPremiereCellule - 1;
+                            voisinTrouve = true;
+                        }
+                        break;
+                    case 1: // Sud
+                        if (yPremiereCellule < hauteur - 1 && marquesCellules[yPremiereCellule + 1][xPremiereCellule] == -1) {
+                            xDeuxiemeCellule = xPremiereCellule;
+                            yDeuxiemeCellule = yPremiereCellule + 1;
+                            voisinTrouve = true;
+                        }
+                        break;
+                    case 2: // Est
+                        if (xPremiereCellule < largeur - 1 && marquesCellules[yPremiereCellule][xPremiereCellule + 1] == -1) {
+                            xDeuxiemeCellule = xPremiereCellule + 1;
+                            yDeuxiemeCellule = yPremiereCellule;
+                            voisinTrouve = true;
+                        }
+                        break;
+                    case 3: // Ouest
+                        if (xPremiereCellule > 0 && marquesCellules[yPremiereCellule][xPremiereCellule - 1] == -1) {
+                            xDeuxiemeCellule = xPremiereCellule - 1;
+                            yDeuxiemeCellule = yPremiereCellule;
+                            voisinTrouve = true;
+                        }
+                        break;
+                }
+            }
+
+            // Vérification si un voisin non marqué a été trouvé
+            if (xDeuxiemeCellule != -1 && yDeuxiemeCellule != -1) {
+                Cellule deuxiemeCellule = tableauLaby[yDeuxiemeCellule][xDeuxiemeCellule];
+                marquesCellules[yDeuxiemeCellule][xDeuxiemeCellule] = compteurMarques;
+
+                // Destruction des murs entre les deux cellules
+                if (xDeuxiemeCellule < xPremiereCellule) {
+                    premiereCellule.setMurs(false, 3); // Ouest
+                    deuxiemeCellule.setMurs(false, 2); // Est
+                } else if (xDeuxiemeCellule > xPremiereCellule) {
+                    premiereCellule.setMurs(false, 2); // Est
+                    deuxiemeCellule.setMurs(false, 3); // Ouest
+                } else if (yDeuxiemeCellule < yPremiereCellule) {
+                    premiereCellule.setMurs(false, 0); // Nord
+                    deuxiemeCellule.setMurs(false, 1); // Sud
+                } else if (yDeuxiemeCellule > yPremiereCellule) {
+                    premiereCellule.setMurs(false, 1); // Sud
+                    deuxiemeCellule.setMurs(false, 0); // Nord
+                }
+
+                compteurAretes++;
+            }
+
+            // Fusion des marques des deux cellules si elles sont différentes
+            int marquePremiereCellule = marquesCellules[yPremiereCellule][xPremiereCellule];
+            int marqueDeuxiemeCellule = marquesCellules[yDeuxiemeCellule][xDeuxiemeCellule];
+            if (marquePremiereCellule != marqueDeuxiemeCellule) {
+                for (int i = 0; i < hauteur; i++) {
+                    for (int j = 0; j < largeur; j++) {
+                        if (marquesCellules[i][j] == marqueDeuxiemeCellule) {
+                            marquesCellules[i][j] = marquePremiereCellule;
+                        }
+                    }
+                }
+            }
+
+            compteurMarques++;
+        }
+
+        // Création du labyrinthe
+        Labyrinthe laby = new Labyrinthe(largeur, hauteur);
+
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                Cellule cellule = tableauLaby[i][j];
+                boolean nord = cellule.estMurPresent(0);
+                boolean sud = cellule.estMurPresent(1);
+                boolean est = cellule.estMurPresent(2);
+                boolean ouest = cellule.estMurPresent(3);
+                laby.ajoutCellule(j, i, nord, sud, est, ouest);
+            }
+        }
+
+        return laby;
+    }
+
+
+
+    /**
+     * création du labyrinthe par backtracking (descente en profondeur)
+     * @param hauteur la hauteur du labyrinthe
+     * @param largeur la largeur du labyrinthe
+     * @return le labyrinthe créer
+     */
+    public static Labyrinthe creationBacktracking(int hauteur, int largeur) {
+        int sommetCourant;
+        int [][]numeroSommet = new int[largeur][hauteur];
+        boolean[][] sommetParcouru = new boolean [hauteur][largeur];
+        boolean[][] matrice = new boolean[hauteur * largeur][hauteur * largeur];
+
+        //numérotation des sommets et initialisation des sommets parcourus
+        int compteur = 1;
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                numeroSommet[i][j] = compteur;
+                sommetParcouru[i][j] = false;
+                compteur ++;
+            }
+        }
+
+        //choix aléatoire du premier sommet à empiler
+        Pile pileSommets = new Pile();
+        Random random = new Random();
+        int numeroHauteur = random.nextInt(hauteur);
+        int numeroLargeur = random.nextInt(largeur);
+        pileSommets.empiler(numeroSommet[numeroHauteur][numeroLargeur]);
+        sommetParcouru[numeroHauteur][numeroLargeur] = true;
+        sommetCourant = (int) pileSommets.sommet();
+
+        while(!pileSommets.estVide()) {
+            sommetCourant = (int) pileSommets.sommet();
+            int directionDeuxiemeCellule;
+            int numeroHauteurDeuxieme = 0;
+            int numeroLargeurDeuxieme = 0;
+            int [][]numeroDeuxiemeSommet = new int[hauteur][largeur];
+            
+            //on réatribue la hauteur et la largeur pour le nouveau sommet courant
+            for(int i = 0; i < hauteur; i++){
+                for(int j = 0; j < largeur; j++) {
+                    if(numeroSommet[i][j] == sommetCourant) {
+                        numeroHauteur = i;
+                        numeroLargeur = j;
+                    }
+                }
+            }
+            
+            // 0 -> à gauche
+            // 1 -> à droite
+            // 2 -> dessus
+            // 3 -> dessous
+
+            if ((numeroLargeur > 0 && sommetParcouru[numeroHauteur][numeroLargeur - 1]) &&
+                (numeroLargeur < largeur - 1 && sommetParcouru[numeroHauteur][numeroLargeur + 1]) &&
+                (numeroHauteur > 0 && sommetParcouru[numeroHauteur - 1][numeroLargeur]) &&
+                (numeroHauteur < hauteur - 1 && sommetParcouru[numeroHauteur + 1][numeroLargeur])) {
+
+                    pileSommets.depiler();
+            } else {
+                directionDeuxiemeCellule = random.nextInt(4);
+                switch(directionDeuxiemeCellule) {
+                    case 0:
+                        if(numeroLargeur == 0){
+                            break;
+                        } else if(sommetParcouru[numeroLargeur - 1][numeroHauteur]) {
+                            break;
+                        } else {
+                            numeroHauteurDeuxieme = numeroHauteur;
+                            numeroLargeurDeuxieme = numeroLargeur - 1;
+                         
+                        }
+                    case 1:
+                        if(numeroLargeur == largeur - 1) {
+                            break;
+                        } else if(sommetParcouru[numeroLargeur + 1][numeroHauteur]) {
+                            break;
+                        } else {
+                            numeroHauteurDeuxieme = numeroHauteur;
+                            numeroLargeurDeuxieme = numeroLargeur + 1;
+                            
+                        }
+                    case 2:
+                        if(numeroHauteur == 0) {
+                            break;
+                        } else if(sommetParcouru[numeroHauteur - 1][numeroLargeur]) {
+                            break;
+                        } else {
+                            numeroHauteurDeuxieme = numeroHauteur - 1;
+                            numeroLargeurDeuxieme = numeroLargeur;
+                            
+                        }
+                    case 3:
+                        if(numeroHauteur == hauteur - 1) {
+                            break;
+                        } else if(sommetParcouru[numeroHauteur + 1][numeroLargeur]){
+                            break;
+                        } else {
+                            numeroHauteurDeuxieme = numeroHauteur + 1;
+                            numeroLargeurDeuxieme = numeroLargeur;
+                            
+                        }
+                    default :
+                        break;
+                }
+                matrice = ajoutArrete(numeroSommet[numeroHauteur][numeroLargeur],numeroDeuxiemeSommet[numeroHauteurDeuxieme][numeroLargeurDeuxieme] , matrice, pileSommets);
+                sommetParcouru[numeroHauteurDeuxieme][numeroLargeurDeuxieme] = true;
+            }
+        }
+
+        //création du labyrinthe avec toutes les portes fermés
+        Labyrinthe laby = new Labyrinthe(largeur,hauteur);
+            
+        boolean murNord = true,
+            murSud = true,
+            murOuest = true,
+            murEst = true;
+                
+
+        for(int i = 0; i < hauteur; i++) {
+            for(int j = 0; j < largeur; j++){
+                if(matrice[i][j]){
+                    if(j == i - matrice[i].length) {
+                        murNord = false;
+                    }
+                    if(j == i + matrice[i].length) {
+                        murSud = false;
+                    }
+                    if(j == i - 1) {
+                        murOuest = false;
+                    }
+                    if(j == i + 1) {
+                        murEst = false;
+                    } 
+                }
+                laby.ajoutCellule(i, j, murNord, murSud, murOuest, murEst);
+            }
+        }  
+        
+        return laby;
+    }
+
+
+    /**
+    * la fonction ajoute les arrêtes a la matrice d'adjacence dans la méthode de backtracking
+    * autrement dit elle casse les murs du labyrinthe
+    * @param i
+    * @param j
+    * @param matrice la matrice d'adjacence
+    * @param PileSommets 
+    */
+    private static boolean[][] ajoutArrete(int i, int j, boolean[][]matrice, Pile PileSommets) {
+        matrice[i][j] = true;
+        matrice[j][i] = true;
+        PileSommets.empiler(j);
+        return matrice;
+
+    }
+}

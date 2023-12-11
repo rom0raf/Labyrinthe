@@ -1,0 +1,142 @@
+/**
+ * ToucheEvent.java
+ * Iut Rodez pas de droits d'auteurs
+ */
+package iut.info1.sae.joueur;
+
+import java.util.Scanner;
+
+/**
+ * Permet de génér la saisie de l'utilisateur pour jouer avec un labyrinthe
+ * Nécessite une classe Joueur pour marcher
+ * 
+ * @author rafael.roma
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ * @author antonin.veyre
+ */
+public class ToucheEvent {
+
+    private Joueur joueur;
+
+    public ToucheEvent() {
+
+    }
+    
+    /**
+     * Gère un événement de saisie de touche.
+     * La fonction prend en entrée un code de touche et détermine la direction correspondante.
+     * Si la direction n'est ni nulle ('\0') ni 'Q', la fonction tente de déplacer le joueur dans cette direction.
+     * Si le joueur existe et le déplacement est effectué avec succès, la fonction retourne true.
+     * Si le déplacement est illégal, un message d'erreur est affiché et la fonction retourne true.
+     * Si la direction est 'Q', un message est affiché et la fonction retourne false.
+     * Si aucune des conditions précédentes n'est satisfaite, la fonction retourne true.
+     *
+     * @param input Le code de la touche saisie.
+     * @return true si le déplacement est effectué avec succès ou si la fonction doit continuer à gérer les événements,
+     *         false si la touche 'Q' est saisie et la fonction ne doit plus gérer les événements.
+     */
+    public boolean handleKeyEvent(int input) {
+        char direction = getDirectionFromKey(input);
+        if (direction != '\0' && direction != 'Q') {
+            if (this.joueur != null) {
+                boolean estDeplace;
+                estDeplace = joueur.deplacer(direction);
+
+                if (!estDeplace) {
+                    System.out.println("Ce mouvement est illégal.");
+                }
+                return true;
+            }
+        } else {
+            if (direction == 'Q') {
+                System.out.println("Bien essayé.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Récupère la direction correspondante à partir du code de touche saisi.
+     * La fonction utilise une instruction switch pour mapper le code de touche à la direction correspondante.
+     * Si le code de touche correspond à 'N' ou 'n', la fonction retourne 'N' (Nord).
+     * Si le code de touche correspond à 'S' ou 's', la fonction retourne 'S' (Sud).
+     * Si le code de touche correspond à 'E' ou 'e', la fonction retourne 'E' (Est).
+     * Si le code de touche correspond à 'O' ou 'o', la fonction retourne 'O' (Ouest).
+     * Si le code de touche correspond à 'Q' ou 'q', la fonction retourne 'Q' (Quitter).
+     * Si le code de touche ne correspond à aucune des valeurs précédentes, la fonction retourne '\0' (caractère nul).
+     *
+     * @param input Le code de la touche saisie.
+     * @return La direction correspondante, ou '\0' si aucune direction n'est trouvée.
+     */
+    private static char getDirectionFromKey(int input) {
+        switch (input) {
+            case 'N', 'n':
+                return 'N';
+            case 'S', 's':
+                return 'S';
+            case 'E', 'e':
+                return 'E';
+            case 'O', 'o':
+                return 'O';
+            case 'Q', 'q':
+                return 'Q';
+            default:
+                return '\0';
+        }
+    }
+
+    /**
+     * Permet de jouer au labyrinthe en interagissant avec le joueur.
+     * La fonction affiche le labyrinthe du joueur et invite le joueur à entrer un mouvement.
+     * Les mouvements possibles sont affichés à l'écran.
+     * Si le mouvement est valide et géré avec succès par la méthode handleKeyEvent(),
+     * la fonction continue de demander de nouveaux mouvements jusqu'à ce que le joueur atteigne la sortie du labyrinthe (victoire) ou décide de quitter (touche 'Q').
+     * Si le joueur atteint la sortie du labyrinthe, un message de félicitations est affiché.
+     */
+    public void jouer() {
+        boolean estArrive = false;
+        boolean estArreter = false;
+        String mouvement;
+        Scanner scanner = new Scanner(System.in);
+        
+        while (!estArrive && !estArreter) {
+            this.joueur.afficherLabyrintheJoueur();
+            System.out.print("-- Mouvements --  \n ['Q' -> Quitter] \n ['E' ou 'e' -> Droite] \n ['O' ou 'o' -> Gauche ] \n ['S' ou 's' -> Bas] \n ['N' ou 'n' -> Haut] \n Votre choix: ");
+            mouvement = scanner.nextLine();
+            if (mouvement.length() == 1) {
+                if (!handleKeyEvent(mouvement.charAt(0))) {
+                    estArreter = true;
+                }
+            }
+            System.out.println("\n");
+            estArrive = this.joueur.estArrive();    
+        }
+        
+        if (estArrive && !estArreter) {
+            this.joueur.afficherLabyrintheJoueur();
+            System.out.print("Bravo vous avez gagné !!! :) ");
+        } 
+    }
+
+    /**
+     * Retourne l'objet joueur actuel.
+     *
+     * @return L'objet joueur actuel.
+     */
+    public Joueur getJoueur() {
+        return joueur;
+    }
+
+    /**
+     * Définit l'objet joueur.
+     *
+     * @param joueur Le nouvel objet joueur à définir.
+     */
+    public void setJoueur(Joueur joueur) {
+        this.joueur = joueur;
+    }
+
+}

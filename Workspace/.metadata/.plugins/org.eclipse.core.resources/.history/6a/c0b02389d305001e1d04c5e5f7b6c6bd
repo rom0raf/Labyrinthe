@@ -1,0 +1,230 @@
+/**
+ * CreationLabyrinthe.java
+ * Iut roidez pas de droits d'auteurs
+ */
+
+package iut.info1.sae.create;
+import java.util.Arrays;
+import java.util.Random;
+
+import iut.info1.sae.joueur.Joueur;
+import iut.info1.sae.labyrinthe.Cellule;
+import iut.info1.sae.labyrinthe.Labyrinthe;
+import iut.info1.sae.pile.Pile;
+
+/**
+ * CreationBacktracking est une classe utilisée pour générer un labyrinthe en utilisant l'algorithme du Backtracking.
+ * Elle crée un labyrinthe en utilisant les cellules et les murs, et permet de récupérer le labyrinthe généré.
+ * 
+ * @author rafael.roma
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ * @author antonin.veyre
+ */
+public class CreationBacktracking {
+    private int largeur;
+    private int hauteur;
+    private Cellule[][] cellules;
+    Pile pileSommets = new Pile();
+    boolean[] sommetParcouru;
+
+    /**
+     * Constructeur de la classe CreationBacktracking.
+     * Il initialise les attributs de la classe et les cellules du labyrinthe avant d'appeler la méthode parcoursBacktracking pour générer le labyrinthe.
+     *
+     * @param largeur la largeur du labyrinthe
+     * @param hauteur la hauteur du labyrinthe
+     */
+    public CreationBacktracking(int largeur, int hauteur) {
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+        this.cellules = new Cellule[hauteur][largeur];
+        // Initialise les cellules avant d'appeler la méthode parcoursBacktracking
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+            	boolean[] murs = {true, true, true, true};
+                cellules[i][j] = new Cellule(murs);
+                
+            }
+        }
+        sommetParcouru = new boolean[hauteur * largeur];
+        
+        parcoursBacktracking();
+        createLabyrinthe();
+    }
+ 
+    /**
+     * Méthode privée qui effectue le parcours du labyrinthe en utilisant l'algorithme du Backtracking.
+     * Elle génère les chemins du labyrinthe en cassant les murs entre les cellules.
+     */
+    public void parcoursBacktracking() {
+    	int[] numeroSommet = new int [hauteur * largeur];
+
+		for(int i = 0; i < numeroSommet.length; i++) {
+			numeroSommet[i] = i + 1;
+			sommetParcouru[i] = false;
+	    }
+		
+    	int indiceAleatoire = new Random().nextInt(numeroSommet.length);
+    	if(indiceAleatoire < sommetParcouru.length) {
+    		sommetParcouru[indiceAleatoire] = true;
+    	}
+    	
+    	pileSommets.empiler(indiceAleatoire + 1);
+    	
+    	while(!pileSommets.estVide()) {
+    		int sommetCourant = (int) pileSommets.sommet();
+    		int[] pieceVoisines = getVoisins(sommetCourant);
+    		
+    		//on vérifie si les pièces voisines ont déjà été parcouru
+    		int[] piecesNonParcourues = Arrays.stream(pieceVoisines)
+    			    .filter(piece -> piece > 0 && !sommetParcouru[piece])
+    			    .toArray();
+
+
+    		if (piecesNonParcourues.length == 0) {
+    			 pileSommets.depiler();
+    		}
+
+            else {
+            	int indiceSommetVoisin = new Random().nextInt(pieceVoisines.length);
+            	int numeroPieceVoisine = pieceVoisines[indiceSommetVoisin];
+            	Cellule celluleCourante = cellules[getHauteur(sommetCourant)][getLargeur(sommetCourant)];
+            	Cellule celluleVoisine = cellules[getHauteur(numeroPieceVoisine)][getLargeur(numeroPieceVoisine)];
+            	casserMur(celluleCourante, celluleVoisine);
+            	pileSommets.empiler(numeroPieceVoisine);
+            	sommetParcouru[numeroPieceVoisine] = true;
+            	
+            }
+    	}
+    	
+    }
+
+    /**
+     * Méthode privée qui casse un mur entre deux cellules adjacentes.
+     *
+     * @param pieceCourante la cellule courante
+     * @param pieceVoisine la cellule voisine
+     */
+    private void casserMur(Cellule pieceCourante, Cellule pieceVoisine) {
+		int largeur1 = getLargeurPiece(pieceCourante);
+		int hauteur1 = getHauteurPiece(pieceCourante);
+		int largeur2 = getLargeurPiece(pieceVoisine);
+		int hauteur2 = getHauteurPiece(pieceVoisine);
+		
+
+	    // Vérifier si les pièces forment un îlot 2x2 sans murs autour
+	    if (largeur1 == largeur2 && hauteur1 < hauteur2) {
+            pieceCourante.modifierMur('E', false); // Ouvrir un passage à l'est dans cellule1
+            pieceVoisine.modifierMur('O', false); // Ouvrir un passage à l'ouest dans cellule2
+        } else if (largeur1 == largeur2 && hauteur1 > hauteur2) {
+            pieceCourante.modifierMur('O', false); // Ouvrir un passage à l'ouest dans cellule1
+            pieceVoisine.modifierMur('E', false); // Ouvrir un passage à l'est dans cellule2
+        } else if (hauteur1 == hauteur2 && largeur1 < largeur2) {
+            pieceCourante.modifierMur('S', false); // Ouvrir un passage au sud dans cellule1
+            pieceVoisine.setMurs(false, 0); // Ouvrir un passage au nord dans cellule2
+        } else if (hauteur1 == hauteur2 && largeur1 > largeur2) {
+            pieceCourante.setMurs(false, 0); // Ouvrir un passage au nord dans cellule1
+            pieceVoisine.setMurs(false, 1); // Ouvrir un passage au sud dans cellule2
+        }
+		
+	}
+	/**
+     * Méthode qui retourne la hauteur d'une cellule en fonction de son numéro de sommet.
+     *
+     * @param noPiece le numéro du sommet de la cellule
+     * @return la hauteur de la cellule
+     */
+    public int getHauteur(int noPiece) {
+    	return noPiece / largeur;
+    }
+    
+    /**
+     * Méthode qui retourne la largeur d'une cellule en fonction de son numéro de sommet.
+     *
+     * @param noPiece le numéro du sommet de la cellule
+     * @return la largeur de la cellule
+     */
+    public int getLargeur(int noPiece) {
+    	return noPiece % largeur;
+    }
+    
+    /**
+     * Méthode qui retourne la largeur d'une cellule passée en paramètre.
+     *
+     * @param piece la cellule dont on souhaite obtenir la largeur
+     * @return la largeur de la cellule
+     */
+    private int getLargeurPiece(Cellule piece) {
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (cellules[i][j] == piece) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Méthode qui retourne la hauteur d'une cellule passée en paramètre.
+     *
+     * @param piece la cellule dont on souhaite obtenir la hauteur
+     * @return la hauteur de la cellule
+     */
+    private int getHauteurPiece(Cellule piece) {
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (cellules[i][j] == piece) {
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Méthode qui retourne les numéros de sommets des pièces voisines d'une pièce donnée.
+     *
+     * @param noPiece le numéro de sommet de la pièce courante
+     * @return un tableau contenant les numéros de sommets des pièces voisines
+     */
+    public int[] getVoisins (int noPiece) {
+    	int[] voisins = new int[4];
+    	int hauteurPiece = noPiece / largeur;
+    	int largeurPiece = noPiece % largeur;
+    	if(largeurPiece > 0) {
+    		voisins[0] = noPiece - 1;
+    	}
+    	if(largeurPiece < largeur - 1 ) {
+    		voisins[1] = noPiece + 1 ;
+    	}
+    	if(hauteurPiece > 0) {
+    		voisins[2] = noPiece - largeur;
+    	}
+    	if(hauteurPiece < hauteur - 1) {
+    		voisins[3] = noPiece + largeur;
+    	}
+    	return voisins;
+    }
+
+    
+    /**
+     * Méthode qui crée un labyrinthe à partir des cellules et des murs générés.
+     *
+     * @return le labyrinthe créé
+     */
+    public Labyrinthe createLabyrinthe() {
+    	Labyrinthe labyrinthe = new Labyrinthe(largeur, hauteur);
+    	for(int i = 0; i < hauteur; i++) {
+    		for (int j = 0; j < largeur; j++) {
+    			boolean nord = cellules[i][j].estMurPresent('N');
+    			boolean sud = cellules[i][j].estMurPresent('S');
+    			boolean ouest = cellules[i][j].estMurPresent('O');
+    			boolean est = cellules[i][j].estMurPresent('E');
+    			labyrinthe.ajoutCellule(j, i, nord, sud, est, ouest);
+    		}
+    	}
+    	return labyrinthe;
+    }
+}

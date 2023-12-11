@@ -1,0 +1,135 @@
+package application;
+
+import java.io.File;
+
+import iut.info1.sae.labyrinthe.Cellule;
+import iut.info1.sae.labyrinthe.Labyrinthe;
+import iut.info1.sae.save.Chargement;
+import iut.info1.sae.save.Sauvegarde;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+
+public class ControlleurScene1 {
+
+    @FXML // fx:id="jouer"
+    private Button jouer; // Value injected by FXMLLoader
+
+    @FXML // fx:id="largeur"
+    private TextField largeur; // Value injected by FXMLLoader
+
+    @FXML // fx:id="ascendanceDeChaine"
+    private RadioButton ascendanceDeChaine; // Value injected by FXMLLoader
+
+    @FXML // fx:id="Methode"
+    private ToggleGroup Methode; // Value injected by FXMLLoader
+
+    @FXML // fx:id="backtracking"
+    private RadioButton backtracking; // Value injected by FXMLLoader
+
+    @FXML // fx:id="panelbase"
+    private Pane panelbase; // Value injected by FXMLLoader
+
+    @FXML // fx:id="chargerLab"
+    private Button chargerLab; // Value injected by FXMLLoader
+
+    @FXML // fx:id="hauteur"
+    private TextField hauteur; // Value injected by FXMLLoader
+
+    @FXML
+    void clickBoutonJouer() {
+    	String hauteurString = hauteur.getText();
+        try {
+            int hauteurF = Integer.parseInt(hauteurString);
+
+            String largeurString = largeur.getText();
+            int largeurF = Integer.parseInt(largeurString);
+
+            // Faites quelque chose avec les valeurs hauteurF et largeurF
+        } catch (NumberFormatException ex) {
+            String errorMessage = "Erreur : les valeurs de hauteur et/ou largeur ne sont pas valides.";
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText(null);
+            alert.setContentText(errorMessage);
+            alert.showAndWait();
+        }
+        
+    }
+
+    @FXML
+    void clickBoutonChargerLaby() {
+        
+    	FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner un fichier");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichiers texte", "*.json")
+        );
+
+        Stage stage = (Stage) chargerLab.getScene().getWindow(); // Obtenez la référence à la fenêtre actuelle
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        String filePath;
+        if (selectedFile != null) {
+            filePath = selectedFile.getAbsolutePath();
+        } else {
+        	return;
+        }
+        
+        System.out.println(filePath);
+        Labyrinthe lab = new Chargement(filePath).charger();
+
+        // Effacer le contenu précédent du Pane
+        panelbase.getChildren().clear();
+
+        int cellSize = 20; // Taille d'une cellule du labyrinthe
+        int numRows = lab.getHauteur();
+        int numCols = lab.getLargeur();
+
+        // Parcourir les cellules du labyrinthe et créer les éléments graphiques correspondants
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                Cellule cellule = lab.getCellule(i, j);
+
+                // Calculer les coordonnées de la cellule dans le Pane
+                double x = j * cellSize;
+                double y = i * cellSize;
+
+                // Dessiner les murs de la cellule en utilisant des segments de ligne
+                if (cellule.estMurPresent('N')) {
+                    Line murNord = new Line(x, y, x + cellSize, y);
+                    murNord.setStroke(Color.BLACK);
+                    panelbase.getChildren().add(murNord);
+                }
+
+                if (cellule.estMurPresent('S')) {
+                    Line murSud = new Line(x, y + cellSize, x + cellSize, y + cellSize);
+                    murSud.setStroke(Color.BLACK);
+                    panelbase.getChildren().add(murSud);
+                }
+
+                if (cellule.estMurPresent('E')) {
+                    Line murEst = new Line(x + cellSize, y, x + cellSize, y + cellSize);
+                    murEst.setStroke(Color.BLACK);
+                    panelbase.getChildren().add(murEst);
+                }
+
+                if (cellule.estMurPresent('O')) {
+                    Line murOuest = new Line(x, y, x, y + cellSize);
+                    murOuest.setStroke(Color.BLACK);
+                    panelbase.getChildren().add(murOuest);
+                }
+            }
+        }
+    }
+}

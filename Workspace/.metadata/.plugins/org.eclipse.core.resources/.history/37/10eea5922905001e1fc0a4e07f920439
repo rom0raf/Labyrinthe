@@ -1,0 +1,86 @@
+package iut.info1.sae.joueur;
+
+import java.util.Scanner;
+
+public class ToucheEvent {
+
+    private Joueur joueur;
+
+    public ToucheEvent() {
+
+    }
+    
+    public boolean handleKeyEvent(int input) {
+        char direction = getDirectionFromKey(input);
+        if (direction != '\0' && direction != 'Q') {
+            if (this.joueur != null) {
+                boolean estDeplace;
+                estDeplace = joueur.deplacer(direction);
+
+                if (!estDeplace) {
+                    System.out.println("Ce mouvement est illégal.");
+                }
+                return true;
+            }
+        } else {
+        	if (direction == 'Q') {
+        		System.out.println("Bien essayé.");
+        		return false;
+        	}
+        }
+        return true;
+    }
+
+    private static char getDirectionFromKey(int input) {
+        switch (input) {
+            case 'N', 'n':
+                return 'N';
+            case 'S', 's':
+                return 'S';
+            case 'E', 'e':
+                return 'E';
+            case 'O', 'o':
+                return 'O';
+            case 'Q', 'q':
+                return 'Q';
+            default:
+                return '\0';
+        }
+    }
+
+    /**
+     * Permet de jouer au labyrinthe
+     */
+    public void jouer(){
+    	
+    	boolean estArrive = false;
+    	boolean estArreter = false;
+        String mouvement;
+        Scanner scanner = new Scanner(System.in);
+        
+        while (!estArrive && !estArreter) {
+            this.joueur.afficherLabyrintheJoueur();
+            System.out.println("-- Mouvements --  \n ['Q' -> Quitter] \n ['E' ou 'e' -> Droite] \n ['O' ou 'o' -> Gauche ] \n ['S' ou 's' -> Bas] \n ['N' ou 'n' -> Haut] \n Votre choix: ");
+            mouvement = scanner.nextLine();
+            if (mouvement.length() == 1) {
+                if (!handleKeyEvent(mouvement.charAt(0))) {
+                	estArreter = true;
+                }
+            }
+            estArrive = this.joueur.estArrive();    
+        }
+        
+        if (estArrive && !estArreter) {
+        	this.joueur.afficherLabyrintheJoueur();
+            System.out.print("Bravo vous avez gagné !!! :) ");
+        } 
+    }
+
+    public Joueur getJoueur() {
+        return joueur;
+    }
+
+    public void setJoueur(Joueur joueur) {
+        this.joueur = joueur;
+    }
+}

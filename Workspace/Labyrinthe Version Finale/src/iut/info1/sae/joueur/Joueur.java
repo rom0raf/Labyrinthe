@@ -1,0 +1,196 @@
+/**
+ * Joueur.java          15/04/2023
+ * Aucun copyright ni "copyleft"
+ */
+package iut.info1.sae.joueur;
+
+import iut.info1.sae.labyrinthe.Cellule;
+import iut.info1.sae.labyrinthe.Labyrinthe;
+
+/**
+ * La classe Joueur représente un joueur participant au jeu du labyrinthe.
+ * 
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+public class Joueur {
+ 
+	private int[] coordonnees;
+	
+	private int[] coordonneesArrivee;
+	
+	private Labyrinthe labyrinthe;
+	
+	private int nbMouvements;
+	
+	/**
+	 * Constructeur de la classe Joueur, qui initialise les attributs du joueur avec les valeurs fournies.
+	 * 
+	 * @param labyrinthe le labyrinthe sur le quel le joueur va jouer
+	 */
+	public Joueur(Labyrinthe labyrinthe) {
+		
+		if (!labyrinthe.estFini()) {
+			throw new IllegalArgumentException("Le labyrinthe pour le joueur n'est pas finit c'est impossible de jouer avec un labyrinthe non fini.");
+		}
+		
+		this.labyrinthe = labyrinthe;
+		this.coordonnees = new int[] {0, 0};
+		this.coordonneesArrivee = new int[] {labyrinthe.getHauteur() - 1, labyrinthe.getLargeur() - 1};
+		this.nbMouvements = 0;
+		
+	}
+
+	/**
+	 * Permet d'afficher le labyrinthe avec le joueur actuel ainsi que l'arrivé
+	 */
+	public void afficherLabyrintheJoueur() {
+		for (int y = 0; y < this.labyrinthe.getHauteur(); y++) {
+
+            for (int x = 0 ; x < this.labyrinthe.getLargeur() ; x++) {
+
+
+                Cellule piece = this.labyrinthe.getCellule(y, x); 
+
+                System.out.print("+");
+
+                if (y > 0) {
+
+                    System.out.print(piece.estMurPresent('N') ? "----" : labyrinthe.getCellule(y-1, x).estMurPresent('S') ? "----" : "    ");
+
+                } else {
+
+                    System.out.print(piece.estMurPresent('N') ? "----" : "    ");
+
+                }              
+
+            }
+
+            System.out.println("+");
+
+            for (int x = 0; x < this.labyrinthe.getLargeur() ; x++) {
+
+                Cellule piece = this.labyrinthe.getCellule(y, x);
+
+                if (x > 0) {
+
+                    System.out.print(piece.estMurPresent('O') ? "|" : this.labyrinthe.getCellule(y, x-1).estMurPresent('E') ? "|" : " ");
+
+                } else {
+
+                    System.out.print(piece.estMurPresent('O') ? "|" : " ");
+
+                }
+
+                if (piece == this.labyrinthe.getCellule(this.coordonnees[0], this.coordonnees[1])) {
+
+                    System.out.print(" J  ");
+
+                } else if (piece == this.labyrinthe.getCellule(this.coordonneesArrivee[0], this.coordonneesArrivee[1])) {
+
+                    System.out.print(" A  ");
+
+                } else {
+
+                    System.out.print("    ");
+
+                }
+
+            }
+
+            Cellule pieceFinLigne = this.labyrinthe.getCellule(y, this.labyrinthe.getLargeur() - 1);
+
+            System.out.println(pieceFinLigne.estMurPresent('E') ? "|" : " ");
+
+        }
+
+        for (int j = 0; j < this.labyrinthe.getLargeur(); j++) {
+
+            Cellule piece = this.labyrinthe.getCellule(this.labyrinthe.getHauteur() - 1, j);
+
+            System.out.print("+");
+
+            System.out.print(piece.estMurPresent('S') ? "----" : "    ");
+
+        }
+
+        System.out.println("+");
+	}
+	
+    /**
+     * Déplace le joueur dans la direction spécifiée, si cela est possible.
+     *
+     * @param direction La direction dans laquelle déplacer le joueur (Nord, Sud, Est, Ouest)
+     * @return true si le déplacement a été effectué, false sinon
+     */
+    public boolean deplacer(char direction) {
+        if (Cellule.estDirectionValide(direction)) {
+        	this.nbMouvements++;
+        	switch (direction) {
+        	
+        	case 'N':
+        		Cellule celluleUp = labyrinthe.getCellule(this.coordonnees[0], this.coordonnees[1]);
+
+        		if (!celluleUp.estMurPresent('N')) {
+        			this.coordonnees[0] = this.coordonnees[0] - 1;
+        			return true;
+        		}
+        		
+        		return false;
+        		
+        	case 'S':
+        		Cellule celluleUp1 = labyrinthe.getCellule(this.coordonnees[0], this.coordonnees[1]);
+
+        		if (!celluleUp1.estMurPresent('S')) {
+        			this.coordonnees[0] = this.coordonnees[0] + 1;
+        			return true;
+        		}
+        		
+        		return false;
+        		
+        	case 'E':
+        		Cellule celluleUp2 = labyrinthe.getCellule(this.coordonnees[0], this.coordonnees[1]);
+
+        		if (!celluleUp2.estMurPresent('E')) {
+        			this.coordonnees[1] = this.coordonnees[1] + 1;
+        			return true;
+        		}
+        		
+        		return false;
+        		
+        	case 'O':
+        		Cellule celluleUp3 = labyrinthe.getCellule(this.coordonnees[0], this.coordonnees[1]);
+
+        		if (!celluleUp3.estMurPresent('O')) {
+        			this.coordonnees[1] = this.coordonnees[1] - 1;
+        			return true;
+        		}
+        		
+        		return false;
+        	
+        	}
+        }
+        	
+        throw new IllegalArgumentException("La direction saisie est invalide.");
+    }
+ 
+    
+    /**
+     * Renvoie le nombre de mouvemements faits
+     * @return nbMouvements
+     */
+    public int getNbMouvements() {
+		return nbMouvements;
+	}
+
+	/**
+     * Vérifie si le joueur a atteint la sortie du labyrinthe.
+     *
+     * @return true si le joueur est à la sortie, false sinon
+     */
+    public boolean estArrive() {
+    	return this.coordonnees[0] == this.coordonneesArrivee[0] && this.coordonnees[1] == this.coordonneesArrivee[1];
+    }
+} 

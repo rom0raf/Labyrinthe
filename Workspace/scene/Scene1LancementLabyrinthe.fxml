@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane id="panel_base" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="626.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="110.0" layoutY="21.0" text="LABYRINTHE" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
+         <font>
+            <Font size="68.0" />
+         </font>
+      </Label>
+      <Button id="bouton_jouer" layoutX="22.0" layoutY="528.0" mnemonicParsing="false" prefHeight="65.0" prefWidth="557.0" text="JOUER">
+         <font>
+            <Font name="Berlin Sans FB" size="36.0" />
+         </font>
+      </Button>
+      <Pane id="panel_taille" layoutX="28.0" layoutY="226.0" prefHeight="200.0" prefWidth="242.0">
+         <children>
+            <TextField id="saisie_hauteur" layoutX="127.0" layoutY="69.0" prefHeight="25.0" prefWidth="74.0" promptText="Hauteur " />
+            <Label layoutX="36.0" layoutY="66.0" text="Hauteur: " textAlignment="CENTER">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <Label layoutX="76.0" layoutY="6.0" prefHeight="40.0" prefWidth="91.0" text="TAILLE" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+            </Label>
+            <Label layoutX="38.0" layoutY="115.0" text="Largeur: " textAlignment="CENTER">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <TextField id="saisie_largeur" layoutX="127.0" layoutY="117.0" prefHeight="25.0" prefWidth="74.0" promptText="Labyrinthe" />
+         </children>
+      </Pane>
+      <Pane id="panel_methode" layoutX="332.0" layoutY="159.0" prefHeight="267.0" prefWidth="200.0">
+         <children>
+            <Label layoutX="31.0" prefHeight="46.0" prefWidth="138.0" text="METHODE" textAlignment="CENTER" textOverrun="CLIP">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+            </Label>
+            <RadioButton id="radio_methode_ascendance" layoutX="21.0" layoutY="72.0" mnemonicParsing="false" selected="true" text="Par ascendance de chaîne">
+               <toggleGroup>
+                  <ToggleGroup fx:id="Methode" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton id="radio_methode_backtracking" layoutX="21.0" layoutY="117.0" mnemonicParsing="false" text="Par backtracking" toggleGroup="$Methode" />
+         </children>
+      </Pane>
+      <Button id="bouton_charger" layoutX="317.0" layoutY="413.0" mnemonicParsing="false" text="Charger une labyrinthe">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+   </children>
+</Pane>

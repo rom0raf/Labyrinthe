@@ -1,0 +1,10 @@
+element {
+	--couleur_fond_clair: #DDE6ED;
+	--couleur_gris: #9DB2BF;
+	--couleur_gris_fonce: #526D82;
+	--couleur_fonce: #27374D;
+}
+
+#panelbase {
+	-fx-background-color: var(--couleur_fonce);
+}

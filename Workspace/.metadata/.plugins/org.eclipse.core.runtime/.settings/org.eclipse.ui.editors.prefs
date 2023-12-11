@@ -1,0 +1,5 @@
+AbstractTextEditor.Color.Background.SystemDefault=true
+AbstractTextEditor.Color.SelectionBackground.SystemDefault=true
+AbstractTextEditor.Color.SelectionForeground.SystemDefault=true
+eclipse.preferences.version=1
+jsparrow.marker.color=232,242,254

@@ -1,0 +1,342 @@
+package iut.info1.sae.joueur;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Scanner;
+
+import iut.info1.sae.labyrinthe.Cellule;
+import iut.info1.sae.labyrinthe.Labyrinthe;
+import iut.info1.sae.save.Chargement;
+import iut.info1.sae.save.Sauvegarde;
+import iut.info1.sae.create.CreationBacktracking;
+import iut.info1.sae.solution.Solution;
+
+/**
+ * Classe représentant un menu pour gérer un labyrinthe en console.
+ * 
+ * @author rafael.roma
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ * @author antonin.veyre
+ */
+public class MenuLabyrinthe {
+	
+    private static boolean labyrintheCharge = false;
+    private static boolean labyrintheGenere = false;
+    private static boolean dernierePartieJouee = false;
+    
+    private static Labyrinthe labyrintheCharger;
+    private static Joueur leJoueur;
+
+    /**
+     * Lance le menu
+     */
+    public static void startMenu() {
+        Scanner scanner = new Scanner(System.in);
+        int choix;
+        do {
+        	scanner = new Scanner(System.in);
+            afficherMenu();
+            try {
+            	choix = scanner.nextInt();
+            	System.out.println("\n");
+            	switch (choix) {
+                case 1:
+                    chargerLabyrinthe();
+                    break;
+                case 2:
+                    genererLabyrinthe();
+                    break;
+                case 3:
+                    jouer();
+                    break;
+                case 4:
+                    voirStats();
+                    break;
+                case 5:
+                    sauvegarderLabyrinthe();
+                    break;
+                case 6:
+                	afficherSolution();
+                	break;
+                case 7:
+                    System.out.println("Au revoir !");
+                    break;
+                default:
+                    System.out.println("Choix invalide. Veuillez réessayer.");
+                    choix = 0;
+                    break;
+            	}	
+            } catch(Exception err) {
+            	System.out.println("Choix invalide. Veuillez réessayer.");
+            	choix = 0;
+            }
+            System.out.println("\n");
+            scanner.close();
+            
+        } while (choix != 6);
+    }
+
+    private static void afficherSolution() {
+    	if (labyrintheCharge || labyrintheGenere) {
+    		Scanner scanner = new Scanner(System.in);
+            int choixGeneration;
+            
+        	System.out.println("----- ALGORITHME DE SOLUTION -----");
+            System.out.println("1. Solution par main droite");
+            System.out.println("2. Solution par profondeur");
+            System.out.print("Votre choix : ");
+            
+            choixGeneration = scanner.nextInt();
+            
+            switch (choixGeneration) {
+            case 1:
+            	Solution sol = new Solution(labyrintheCharger);
+            	int[][] coordsSol = sol.solutionMainDroite(0, 0, labyrintheCharger.getHauteur() - 1, labyrintheCharger.getLargeur() - 1);
+            	afficherSolution(coordsSol);
+            	return;
+            case 2:
+            	Solution solu = new Solution(labyrintheCharger);
+            	int[][]  coordsSolu = solu.solutionProfondeur(0, 0, labyrintheCharger.getHauteur() - 1, labyrintheCharger.getLargeur() - 1);
+                afficherSolution(coordsSolu);
+                return;
+            default:
+            	System.out.println("Choix invalide. Retour au menu principal.");
+                return;
+            }
+    	} else {
+            System.out.println("Aucun labyrinthe chargé ou généré. Veuillez charger ou générer un labyrinthe.");
+        }
+	}
+    
+    private static void afficherSolution(int[][] sol) {
+    	for (int x = 0; x < labyrintheCharger.getHauteur(); x++) {
+            for (int y = 0 ; y < labyrintheCharger.getLargeur() ; y++) {
+
+                Cellule piece = labyrintheCharger.getCellule(x, y); 
+
+                System.out.print("+");
+
+                if (x > 0) {
+
+                    System.out.print(piece.estMurPresent('N') ? "----" : labyrintheCharger.getCellule(x-1, y).estMurPresent('S') ? "----" : "    ");
+
+                } else {
+
+                    System.out.print(piece.estMurPresent('N') ? "----" : "    ");
+
+                }              
+
+            }
+
+            System.out.println("+");
+
+            for (int y = 0; y < labyrintheCharger.getLargeur() ; y++) {
+
+                Cellule piece = labyrintheCharger.getCellule(x, y);
+
+                if (y > 0) {
+
+                    System.out.print(piece.estMurPresent('O') ? "|" : labyrintheCharger.getCellule(x, y-1).estMurPresent('E') ? "|" : " ");
+
+                } else {
+
+                    System.out.print(piece.estMurPresent('O') ? "|" : " ");
+
+                }
+
+                int t = contientTableau(sol, new int[]{x,y});
+                if (t != -1) {
+
+                	String plus = ("" + t).length() == 1 ? "  " : " ";
+                    System.out.print(" " + t + plus);
+
+                } else {
+
+                    System.out.print("    ");
+
+                }
+
+            }
+
+            Cellule pieceFinLigne = labyrintheCharger.getCellule(x, labyrintheCharger.getLargeur() - 1);
+
+            System.out.println(pieceFinLigne.estMurPresent('E') ? "|" : " ");
+
+        }
+
+        for (int j = 0; j < labyrintheCharger.getLargeur(); j++) {
+
+            Cellule piece = labyrintheCharger.getCellule(labyrintheCharger.getHauteur() - 1, j);
+
+            System.out.print("+");
+
+            System.out.print(piece.estMurPresent('S') ? "----" : "    ");
+
+        }
+
+        System.out.println("+");
+    }
+
+    private static int contientTableau(int[][] tableau2D, int[] tableau1D) {
+        for (int i = 0; i < tableau2D.length; i++) {
+            if (Arrays.equals(tableau2D[i], tableau1D)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+	static class JsonFileFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().endsWith(".json");
+        }
+    }
+    
+    /**
+     * Demande un fichier .json a l'utilisateur et renvoie son chemin
+     * @return le chemin d'access du fichier
+     */
+    private static String demandeFichier() {
+    	
+    	java.awt.FileDialog fileDialog = new java.awt.FileDialog((java.awt.Frame) null);
+        fileDialog.setMode(java.awt.FileDialog.LOAD);
+        fileDialog.setVisible(true);
+        fileDialog.setFilenameFilter(new JsonFileFilter());
+
+        String selectedFilePath = fileDialog.getDirectory() + fileDialog.getFile();
+        if (selectedFilePath != null && !selectedFilePath.isEmpty()) {
+            return selectedFilePath;
+        }
+       
+        return "";
+        
+    }
+    
+    /**
+     * Affiche le menu principal du programme.
+     */
+    private static void afficherMenu() {
+        System.out.println("----- MENU -----");
+        System.out.println("1. Charger un labyrinthe");
+        System.out.println("2. Générer un labyrinthe");
+        System.out.println("3. Jouer");
+        System.out.println("4. Voir les statistiques de la dernière partie");
+        System.out.println("5. Sauvegarder le labyrinthe actuel");
+        System.out.println("6. Afficher les solutions");
+        System.out.println("7. Quitter");
+        System.out.print("Votre choix : ");
+    }
+
+    /**
+     * Charge un labyrinthe à partir d'une source externe.
+     */
+    private static void chargerLabyrinthe() {
+    	String path = demandeFichier();
+    	if (path == "") {
+    		return;
+    	}
+    	
+    	labyrintheCharger = new Chargement(path).charger();
+        labyrintheCharge = true;
+        System.out.println("Labyrinthe chargé !");
+
+    }
+
+    /**
+     * Génère un labyrinthe en utilisant la méthode choisie par l'utilisateur.
+     */
+    private static void genererLabyrinthe() {
+        Scanner scanner = new Scanner(System.in);
+        int choixGeneration;
+        int hauteur;
+        int largeur;
+
+        System.out.println("----- GÉNÉRATION DU LABYRINTHE -----");
+        System.out.println("1. Création ascendante");
+        System.out.println("2. Création par backtracking");
+        System.out.print("Votre choix : ");
+        choixGeneration = scanner.nextInt();
+        System.out.print("Veuillez entrer la taille du labyrinthe : "
+                           + "\nHauteur : ");
+        hauteur = scanner.nextInt();
+        System.out.print("\nLargeur : ");
+        largeur = scanner.nextInt();
+
+
+        switch (choixGeneration) {
+        case 1:
+            // Logique pour la création ascendante
+            labyrintheGenere = true;
+            System.out.println("Labyrinthe généré par création ascendante !");
+            //labyrintheCharger = new CreationAscendante();
+            break;
+        case 2:
+            // Logique pour la création par backtracking
+            labyrintheCharger = new CreationBacktracking(largeur,hauteur).createLabyrinthe();
+            labyrintheGenere = true;
+            System.out.println("Labyrinthe généré par création par backtracking !");
+            break;
+        default:
+            System.out.println("Choix invalide. Retour au menu principal.");
+            break;
+        }
+    }
+
+    /**
+     * Permet à l'utilisateur de jouer au labyrinthe chargé ou généré.
+     */
+    private static void jouer() {
+        if (labyrintheCharge || labyrintheGenere) {
+            // Logique pour jouer au labyrinthe
+            dernierePartieJouee = true;
+            leJoueur = new Joueur(labyrintheCharger);
+            ToucheEvent te = new ToucheEvent();
+            te.setJoueur(leJoueur);
+            te.jouer();
+        } else {
+            System.out.println("Aucun labyrinthe chargé ou généré. Veuillez charger ou générer un labyrinthe.");
+        }
+    }
+
+    /**
+     * Affiche les statistiques de la dernière partie jouée.
+     */
+    private static void voirStats() {
+        if (dernierePartieJouee) {
+            // Logique pour afficher les statistiques de la dernière partie
+            System.out.println("Statistiques de la dernière partie : ");
+            //System.out.println("Vous avez effectué : " + Joueur.getNbMouvements + " coups.");
+        } else {
+            System.out.println("Aucune partie jouée. Veuillez jouer une partie avant de voir les statistiques.");
+        }
+    }
+
+    /**
+     * Sauvegarde le labyrinthe actuel dans une source externe.
+     */
+    private static void sauvegarderLabyrinthe() {
+        if (labyrintheCharge || labyrintheGenere) {
+        	
+            // Logique pour sauvegarder le labyrinthe actuel
+            Scanner scanner = new Scanner(System.in);
+            String nomLaby;
+            System.out.println("Veuiller rentrer le nom du labyrinthe : ");
+            nomLaby = scanner.nextLine();
+            scanner.close();
+            
+            try {
+				new Sauvegarde(labyrintheCharger, nomLaby).sauver();
+			} catch (IOException e) {
+				// TODO CHANGER CETTE MERDE
+			}
+            
+            System.out.println("Labyrinthe sauvegardé !");
+        } else {
+            System.out.println("Aucun labyrinthe chargé ou généré. Veuillez charger ou générer un labyrinthe.");
+        }
+    }
+}

@@ -1,0 +1,434 @@
+/**
+ * Labyrinthe.java       15/04/2023
+ * Aucun copyright ni "copyleft"
+ */
+
+package iut.info1.sae.labyrinthe;
+
+/**
+ * La classe Labyrinthe représente un labyrinthe composé de cellules.
+ * 
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+public class Labyrinthe {
+
+    private Cellule[][] labyrintheCellules;
+
+    private int largeur;
+    private int hauteur;
+
+    /**
+     * Constructeur de la classe Labyrinthe, qui initialise les attributs du
+     * labyrinthe avec les valeurs fournies.
+     *
+     * @param largeur La largeur du labyrinthe en nombre de cellules
+     * @param hauteur La hauteur du labyrinthe en nombre de cellules
+     * @throws IllegalArgumentException si la hauteur ou largeur du labyrinthe est
+     *                                  invalide.
+     */
+    public Labyrinthe(int largeur, int hauteur) {
+
+        if (largeur <= 1 || hauteur <= 1) {
+            throw new IllegalArgumentException("La hauteur ou largeur du labyrinthe est invalide.");
+        }
+
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+        this.labyrintheCellules = new Cellule[hauteur][largeur];
+
+    }
+
+    /**
+     * Deuxieme constructeur de la classe labyrinthe à partir d'une cellule
+     * @param labCel Cellule[][]
+     * @throws IllegalArgumentException si la hauteur ou largeur du labyrinthe est
+     *                                  invalide.
+     */
+    
+    public Labyrinthe(Cellule[][] labCel) {
+    	this.hauteur = labCel.length;
+    	if (hauteur == 0) {
+    		throw new IllegalArgumentException("Hauteur de 0 invalide.");
+    	}
+    	this.labyrintheCellules = labCel;
+    	this.largeur = labCel[0].length;
+    	this.verifIntegriteLabyrinthe();
+    }
+
+    /**
+     * Renvoie true si un y du tableau est valide
+     * 
+     * @param largeur y du tableau
+     * @return true si <= largeur du labyrinthe -1
+     */
+    private boolean estLargeurValide(int largeur) {
+        return (largeur <= (this.largeur - 1) && largeur >= 0);
+    }
+
+    /**
+     * Renvoie true si un x du tableau est valide
+     * 
+     * @param hauteur x du tableau
+     * @return true si <= hauteur du labyrinthe -1
+     */
+    private boolean estHauteurValide(int hauteur) {
+        return (hauteur <= (this.hauteur - 1) && hauteur >= 0);
+    }
+
+    /**
+     * Verifie si tout les murs extérieurs du labyrinthe sont bien présent 
+     *
+     * @param x
+     * @param y
+     * @param murNord
+     * @param murEst
+     * @param murSud
+     * @param murOuest
+     */
+    private void verifierMursExterieurs(int x, int y, boolean murNord, boolean murEst, boolean murSud,
+            boolean murOuest) {
+        if (x == 0 && !murOuest) {
+            throw new IllegalArgumentException("Les murs extérieurs doivent être fermés.");
+        }
+        if (x == largeur - 1 && !murEst) {
+            throw new IllegalArgumentException("Les murs extérieurs doivent être fermés.");
+        }
+        if (y == 0 && !murNord) {
+            throw new IllegalArgumentException("Les murs extérieurs doivent être fermés.");
+        }
+        if (y == hauteur - 1 && !murSud) {
+            throw new IllegalArgumentException("Les murs extérieurs doivent être fermés.");
+        }
+    }
+
+    /**
+     * Vérifie si les contraintes d'ajout d'une cellule au labyrinthe sont
+     * respectées.
+     * Les contraintes incluent :
+     * 1. Tous les murs extérieurs doivent être fermés.
+     * 2. Les murs des cellules adjacentes doivent correspondre.
+     * 3. Une cellule ne doit pas etre isolé
+     *
+     * @param x        La coordonnée x de la cellule à ajouter.
+     * @param y        La coordonnée y de la cellule à ajouter.
+     * @param murNord  La présence d'un mur au nord de la cellule.
+     * @param murSud   La présence d'un mur au sud de la cellule.
+     * @param murEst   La présence d'un mur à l'est de la cellule.
+     * @param murOuest La présence d'un mur à l'ouest de la cellule.
+     * @throws IllegalArgumentException Si une contrainte n'est pas respectée.
+     */
+    private void verifierContraintesAjoutCellule(int x, int y, boolean murNord, boolean murSud, boolean murEst,
+            boolean murOuest) {
+
+        // Contrainte 1: Tous les murs extérieurs doivent être fermés.
+        this.verifierMursExterieurs(x, y, murNord, murEst, murSud, murOuest);
+
+        // Contrainte 2: Les murs des cellules adjacentes doivent correspondre.
+        if (x > 0 && this.labyrintheCellules[y][x - 1] != null
+                && this.labyrintheCellules[y][x - 1].estMurPresent('E') != murOuest) {
+            throw new IllegalArgumentException("Le mur Ouest de la cellule (" + x + ", " + y
+                    + ") ne correspond pas au mur Est de la cellule (" + (x - 1) + ", " + y + ").");
+        }
+
+        if (x < largeur - 1 && this.labyrintheCellules[y][x + 1] != null
+                && this.labyrintheCellules[y][x + 1].estMurPresent('O') != murEst) {
+            throw new IllegalArgumentException("Le mur Est de la cellule (" + x + ", " + y
+                    + ") ne correspond pas au mur Ouest de la cellule (" + (x + 1) + ", " + y + ").");
+        }
+
+        if (y > 0 && this.labyrintheCellules[y - 1][x] != null
+                && this.labyrintheCellules[y - 1][x].estMurPresent('S') != murNord) {
+            throw new IllegalArgumentException("Le mur Nord de la cellule (" + x + ", " + y
+                    + ") ne correspond pas au mur Sud de la cellule (" + x + ", " + (y - 1) + ").");
+        }
+
+        if (y < hauteur - 1 && this.labyrintheCellules[y + 1][x] != null
+                && this.labyrintheCellules[y + 1][x].estMurPresent('N') != murSud) {
+            throw new IllegalArgumentException("Le mur Sud de la cellule (" + x + ", " + y
+                    + ") ne correspond pas au mur Nord de la cellule (" + x + ", " + (y + 1) + ").");
+        }
+
+        // Contrainte 3: Une cellule ne doit pas etre isolée
+        if (murNord && murSud && murEst && murOuest) {
+            throw new IllegalArgumentException("Une cellule ne doit pas etre isolé (ne peut pas etre encerclé de mur)");
+        }
+
+    }
+
+    /**
+     * Ajoute une cellule au labyrinthe en vérifiant les contraintes des murs
+     * extérieurs et l'accessibilité des cellules.
+     *
+     * @param x     La position x de la cellule dans le labyrinthe
+     * @param y     La position y de la cellule dans le labyrinthe
+     * @param nord  La présence d'un mur au nord de la cellule
+     * @param sud   La présence d'un mur au sud de la cellule
+     * @param est   La présence d'un mur à l'est de la cellule
+     * @param ouest La présence d'un mur à l'ouest de la cellule
+     */
+    public void ajoutCellule(int x, int y, boolean murNord, boolean murSud, boolean murEst, boolean murOuest) {
+
+        if (!this.estHauteurValide(x) || !this.estLargeurValide(y)) {
+            throw new IllegalArgumentException("Les coordonnées donné est invalide.");
+        }
+
+        if (this.labyrintheCellules[y][x] != null) {
+            throw new IllegalArgumentException("Il existe deja une cellules au coordonnées x=" + x + ";y=" + y);
+        }
+
+        this.verifierContraintesAjoutCellule(x, y, murNord, murSud, murEst, murOuest);
+
+        Cellule nouvelleCellule = new Cellule(new boolean[] { murNord, murSud, murEst, murOuest });
+        this.labyrintheCellules[y][x] = nouvelleCellule;
+
+        int[] nbCellules = this.nbCellules();
+        int nbCellulesInit = nbCellules[0];
+        int nbCellulesTotal = nbCellules[1];
+
+        if (nbCellulesTotal == nbCellulesInit) {
+            this.toutPointAccessible(this.creerMatriceAdjacence());
+        }
+    }
+
+    /**
+     * Calcule le nombre total de cellules dans le labyrinthe et le nombre de cellules initialisées.
+     *
+     * @return Un tableau d'entiers de taille 2. 
+     *                             Le premier élément est le nombre de cellules initialisées, 
+     *                             et le deuxième est le nombre total de cellules.
+     */
+    private int[] nbCellules() {
+        int nbCellulesInit = 0;
+        int nbCellulesTotal = 0;
+
+        for (int i = 0; i < this.hauteur; i++) {
+            for (int j = 0; j < this.largeur; j++) {
+                if (this.labyrintheCellules[i][j] != null) {
+                    nbCellulesInit++;
+                }
+                nbCellulesTotal++;
+            }
+        }
+
+        int[] res = {
+                nbCellulesInit,
+                nbCellulesTotal
+        };
+
+        return res;
+    }
+
+    /**
+     * Retourne la cellule située aux coordonnées spécifiées.
+     *
+     * @param x La coordonnée x de la cellule
+     * @param y La coordonnée y de la cellule
+     * @return La cellule située aux coordonnées (x, y)
+     * @throws IllegalArgumentException si les coordonnées sont invalide
+     */
+    public Cellule getCellule(int x, int y) {
+        if (!this.estHauteurValide(x) || !this.estLargeurValide(y)) {
+            throw new IllegalArgumentException("Les coordonnées donné est invalide.");
+        }
+
+        return this.labyrintheCellules[x][y];
+    }
+
+    /**
+     * Affiche le labyrinthe dans la console de manière graphique.
+     */
+    public void afficherLabyrinthe() {
+        for (int i = 0; i < hauteur; i++) {
+
+            // Affiche les murs horizontaux
+            for (int j = 0; j < largeur; j++) {
+                Cellule cellule = getCellule(i, j);
+                System.out.print("+");
+                if (cellule != null) {
+                    System.out.print(cellule.estMurPresent('N') ? "---" : "   ");
+                } else {
+                    System.out.print("   ");
+                }
+            }
+            System.out.println("+");
+
+            // Affiche les murs verticaux
+            for (int j = 0; j < largeur; j++) {
+                Cellule cellule = getCellule(i, j);
+                if (cellule != null) {
+                    System.out.print(cellule.estMurPresent('O') ? "|" : " ");
+                } else {
+                    System.out.print(" ");
+                }
+                System.out.print("   "); // Espace pour la cellule elle-même
+            }
+            Cellule celluleDroite = getCellule(i, largeur - 1);
+            if (celluleDroite != null) {
+                System.out.println(celluleDroite.estMurPresent('E') ? "|" : " ");
+            } else {
+                System.out.println(" ");
+            }
+        }
+
+        // Affiche la dernière ligne de murs horizontaux
+        for (int j = 0; j < largeur; j++) {
+            Cellule cellule = getCellule(hauteur - 1, j);
+            System.out.print("+");
+            if (cellule != null) {
+                System.out.print(cellule.estMurPresent('S') ? "---" : "   ");
+            } else {
+                System.out.print("   ");
+            }
+        }
+        System.out.println("+");
+    }
+
+    /**
+     * Cette fonction crée une matrice d'adjacence à partir d'une grille de cellules représentant un labyrinthe. Chaque cellule dans la grille est connectée à ses voisins nord, sud, est et ouest, à condition qu'il n'y ait pas de mur entre eux. La matrice d'adjacence est représentée sous forme d'un tableau bidimensionnel de booléens, où matriceAdjacence[i][j] est vrai si les sommets i et j sont reliés par une arête dans le labyrinthe, et faux sinon.
+     *
+     * @return la matrice d'adjacence représentant le labyrinthe
+     */
+    private boolean[][] creerMatriceAdjacence() {
+        boolean[][] matriceAdjacence = new boolean[largeur * hauteur][largeur * hauteur];
+
+        for (int y = 0; y < hauteur; y++) {
+            for (int x = 0; x < largeur; x++) {
+                int celluleIndex = y * largeur + x;
+                Cellule cellule = labyrintheCellules[y][x];
+
+                // Check for north neighbor
+                if (cellule.estMurPresent('N') == false && estHauteurValide(y - 1)) {
+                    int voisinIndex = (y - 1) * largeur + x;
+                    matriceAdjacence[celluleIndex][voisinIndex] = true;
+                    matriceAdjacence[voisinIndex][celluleIndex] = true;
+                }
+
+                // Check for south neighbor
+                if (cellule.estMurPresent('S') == false && estHauteurValide(y + 1)) {
+                    int voisinIndex = (y + 1) * largeur + x;
+                    matriceAdjacence[celluleIndex][voisinIndex] = true;
+                    matriceAdjacence[voisinIndex][celluleIndex] = true;
+                }
+
+                // Check for west neighbor
+                if (cellule.estMurPresent('O') == false && estLargeurValide(x - 1)) {
+                    int voisinIndex = y * largeur + (x - 1);
+                    matriceAdjacence[celluleIndex][voisinIndex] = true;
+                    matriceAdjacence[voisinIndex][celluleIndex] = true;
+                }
+
+                // Check for east neighbor
+                if (cellule.estMurPresent('E') == false && estLargeurValide(x + 1)) {
+                    int voisinIndex = y * largeur + (x + 1);
+                    matriceAdjacence[celluleIndex][voisinIndex] = true;
+                    matriceAdjacence[voisinIndex][celluleIndex] = true;
+                }
+            }
+        }
+
+        return matriceAdjacence;
+    }
+
+    /**
+     * Cette fonction vérifie si tous les points dans la matrice d'adjacence
+     * sont accessibles à partir du premier sommet. Elle utilise une recherche
+     * en profondeur pour explorer tous les sommets accessibles à partir du
+     * premier sommet, puis vérifie si tous les sommets ont été visités. Si un
+     * sommet n'a pas été visité, cela signifie qu'il existe une cellule isolée
+     * dans le labyrinthe. Dans ce cas, la fonction jette une exception avec 
+     * les coordonnées de la première cellule isolée détectée.
+     *
+     * @param matrice la matrice d'adjacence représentant le labyrinthe
+     * @throws IllegalArgumentException si une cellule isolée est détectée 
+     *                                  dans la matrice
+     */
+    private void toutPointAccessible(boolean[][] matrice) {
+        boolean[] visite = new boolean[matrice.length]; // tableau pour marquer
+                                                        // les sommets visités
+        dfs(matrice, 0, visite); // effectuer une recherche en profondeur à 
+                                 // partir du premier sommet
+
+        // vérifier si tous les sommets ont été visités
+        for (int i = 0; i < visite.length; i++) {
+            if (!visite[i]) {
+                int y = i / matrice[0].length;
+                int x = i % matrice[0].length;
+                throw new IllegalArgumentException("La cellule (" + x + "," + y + ") est isolée dans le labyrinthe");
+            }
+        }
+    }
+    
+    /**
+    * Vérifie l'intégrité du labyrinthe pour s'assurer qu'il a été créé sans aucune erreur.
+    */
+    public void verifIntegriteLabyrinthe() {
+        // Vérifie l'accessibilité de tous les points dans le labyrinthe
+        this.toutPointAccessible(this.creerMatriceAdjacence());
+
+        // Parcourt toutes les cellules du labyrinthe
+        for (int i = 0; i < this.hauteur; i++) {
+            for (int j = 0; j < this.largeur; j++) {
+                // Récupère la cellule à la position (j, i)
+                Cellule cell = this.getCellule(j, i);
+
+                // Vérifie les contraintes d'ajout de la cellule
+                this.verifierContraintesAjoutCellule(i, j,
+                        cell.estMurPresent('N'),
+                        cell.estMurPresent('E'),
+                        cell.estMurPresent('S'),
+                        cell.estMurPresent('O'));
+            }
+        }
+    }
+    /**
+     * Cette fonction crée une matrice d'adjacence à partir d'une grille de
+     * cellules représentant un labyrinthe. Chaque cellule dans la grille est
+     * connectée à ses voisins nord, sud, est et ouest, à condition qu'il n'y 
+     * ait pas de mur entre eux. La matrice d'adjacence est représentée sous 
+     * forme d'un tableau bidimensionnel de booléens, où matriceAdjacence[i][j]
+     * est vrai si les sommets i et j sont reliés par une arête dans le 
+     * labyrinthe, et faux sinon.
+     *
+     * @return la matrice d'adjacence représentant le labyrinthe
+     */
+    private void dfs(boolean[][] matrice, int sommet, boolean[] visite) {
+        visite[sommet] = true; // marquer le sommet comme visité
+
+        // explorer tous les voisins non visités
+        for (int voisin = 0; voisin < matrice[sommet].length; voisin++) {
+            if (matrice[sommet][voisin] && !visite[voisin]) {
+                dfs(matrice, voisin, visite);
+            }
+        }
+    }
+    
+    /**
+     * La fonction permet de vérifier si le labyrinthe est complètement créer 
+     * avec le bon nombre de cellule
+     * @return vrai si le nombre de cellule était le nombre voulu et faux sinon
+     */
+    public boolean estFini(){
+        int[] verifFin = this.nbCellules();
+        return verifFin[1] == verifFin[0];
+    }
+    
+    /**
+     * renvoi la largeur du labyrinthe
+     * @return largeur
+     */
+	public int getLargeur() {
+		return largeur;
+	}
+	
+    /**
+     * renvoi la hauteur du labyrinthe
+     * @return hauteur
+     */
+	public int getHauteur() {
+		return hauteur;
+	} 
+    
+}

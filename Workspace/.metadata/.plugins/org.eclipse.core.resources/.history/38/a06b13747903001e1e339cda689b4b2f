@@ -1,0 +1,77 @@
+/*
+ * Chargement.java              06/05/2023
+ * pas de copyright ni de "copyleft"
+ */
+package iut.info1.sae.save;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+
+import iut.info1.sae.labyrinthe.*;
+
+/**
+ * La classe chargement permet de prendre un fichier
+ * pour ensuite en sortir le labyrinthe présent à
+ * l'intérieur de ce fichier
+ *
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+public class Chargement {
+ 
+	/** */
+    private String nomFichier;
+
+    /**
+     * Constructeur de la classe Chargement
+     * 
+     * @param 
+     */
+	public Chargement(String fichier) {		
+		this.verifFichierExiste(fichier);  
+		this.nomFichier = fichier;
+	}
+
+	/**
+	 * Vérifie que le fichier existe bien
+	 * @param nomFichier le nom du fichier
+	 * @throws IllegalArgumentException si le fichier n'existe pas
+	 */
+	private void verifFichierExiste(String fichierSource) {
+		File fichier = new File(fichierSource);
+		if (!fichier.exists() && !fichier.isDirectory()) {
+			throw new IllegalArgumentException("Le fichier de sauvegarde json n'existe pas");
+		}
+	}
+	
+    /**
+     * charge le fichier en retournant le labyrinthe correspondant
+     * @return le labyrinthe
+     */
+    public Labyrinthe charger(){
+    	
+    	BufferedReader reader = null;
+    	
+        try {
+			reader = new BufferedReader(new FileReader(this.nomFichier));
+			Labyrinthe laby = new Gson().fromJson(reader, Labyrinthe.class);
+	        laby.verifIntegriteLabyrinthe();
+			return laby;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        return null;
+		
+    }
+    
+	
+}

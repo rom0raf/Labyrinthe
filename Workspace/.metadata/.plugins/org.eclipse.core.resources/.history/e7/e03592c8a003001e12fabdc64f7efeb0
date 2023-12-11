@@ -1,0 +1,36 @@
+/**
+ * Main.java            15/04/2023
+ * Aucun copyright ni "copyleft"
+ */
+
+package iut.info1.sae;
+
+import java.io.IOException;
+
+import iut.info1.sae.joueur.MenuLabyrinthe;
+
+/**
+ * La classe Main est la classe principale pour exécuter le programme de génération et de jeu du labyrinthe.
+ * Cette classe contient la méthode main qui initialise et démarre le processus.
+ *
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+public class Main {
+ 
+    /**
+     * La méthode main démarre le système de génération et de jeu du labyrinthe.
+     * Cette méthode crée et initialise les objets nécessaires pour la gestion du labyrinthe,
+     * puis démarre le jeu en fonction des paramètres et des actions de l'utilisateur.
+     *
+     * @param args arguments passés à la ligne de commande, inutilisés dans ce programme
+     */
+    public static void main(String[] args) {
+
+    	MenuLabyrinthe.startMenu();
+    	
+    }
+}
+ 

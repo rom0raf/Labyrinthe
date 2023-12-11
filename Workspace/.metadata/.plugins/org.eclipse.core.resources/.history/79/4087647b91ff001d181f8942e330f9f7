@@ -1,0 +1,125 @@
+/**
+ * Cellule.java          15/04/2023
+ * Aucun copyright ni "copyleft"
+ */
+
+package iut.info1.sae.labyrinthe;
+
+/**
+ * La classe Cellule représente une cellule (pièce) du labyrinthe.
+ * 
+ * @author rafael.roma
+ * @author antonin.veyre
+ * @author aurelien.soleil
+ * @author lohan.vignals
+ */
+public class Cellule {
+ 
+    /** 
+     * Si true alors il y a un mur sinon pas de murs
+     * Possède 4 boolean pour le Nord, Sud, Est et Ouest
+     */
+    private boolean[] murs;
+
+    /** Les charactères valides pour une direction */
+    private static final char[] ALL_DIRECTION = {
+        'N', 'S', 'E', 'O'
+    };
+
+    /**
+     * Constructeur de la classe Cellule, qui initialise les attributs de la cellule avec les valeurs fournies.
+     *
+     * @param murs Un tableau de booléens indiquant la présence de murs pour chaque direction (Nord, Sud, Est, Ouest)
+     * @throws IllegalArgumentException si le tableau de murs est invalide / incomplet
+     */
+    public Cellule(boolean[] murs) {
+        if (estTableauMurValide(murs)) {
+            this.murs = murs;
+        } else {
+            throw new IllegalArgumentException("Le tableau de murs est incomplet / invalide.");
+        }
+    }
+ 
+    /**
+     * Retourne l'état du mur dans la direction spécifiée.
+     *
+     * @param direction La direction du mur à vérifier (Nord, Sud, Est, Ouest)
+     * @return true si un mur est présent, false sinon
+     * @throws IllegalArgumentException si direction est invalide
+     */
+    public boolean estMurPresent(char direction) {
+
+        int id = directionToEntier(direction);
+        return murs[id];
+        
+    }
+
+    /**
+     * Permet de modifier les murs de la cellule
+     *
+     * @param murs tableau de booléens correspondant à la présence
+                   ou non de murs dans les directions N, S, E et O
+     */
+    public void setMurs(boolean[] murs) {
+
+    }
+
+    /**
+     * Renvoie l'entier équivalent a la direction
+     * 
+     * @param direction La direction du mur à vérifier
+     * @return 0 si la direction est 'N'
+     *         1 si la direction est 'S'
+     *         2 si la direction est 'E'
+     *         3 si la direction est 'O'
+     * @throws IllegalArgumentException si la direction est incorrecte
+     */
+    private int directionToEntier(char direction) {
+
+        for(int i = 0; i < ALL_DIRECTION.length; i++) {
+            if (ALL_DIRECTION[i] == direction) {
+                return i;
+            }
+        }
+
+        throw new IllegalArgumentException("La direction est incorrecte");
+
+    }
+    
+    /**
+     * Permet de savoir si la direction est bonne
+     * 
+     * @param direction un char de la direction
+     * @return true si la direction est bonne, false sinon
+     */
+    public static boolean estDirectionValide(char direction) {
+    	for(int i = 0; i < ALL_DIRECTION.length; i++) {
+            if (ALL_DIRECTION[i] == direction) {
+                return true;
+            }
+        }
+    	return false;
+    }
+
+    /**
+     * Determine si un tableau de boolean est valide pour la classe Cellule
+     * 
+     * @param murs Un tableau de booléens indiquant la présence de murs pour chaque direction (Nord, Sud, Est, Ouest)
+     * @return true si la taille du tableau est égale a 4, sinon false
+     */
+    private static boolean estTableauMurValide(boolean[] murs) {
+        return (murs.length == 4);
+    }
+
+    // /**
+    //  * Modifie l'état du mur dans la direction spécifiée.
+    //  *
+    //  * @param direction La direction du mur à modifier (Nord, Sud, Est, Ouest)
+    //  * @param etat      L'état du mur (true si un mur est présent, false sinon)
+    //  */
+    // public void modifierMur(char direction, boolean etat) {
+    //     int id = directionToEntier(direction);
+    //     murs[id] = etat;
+    // }
+
+}

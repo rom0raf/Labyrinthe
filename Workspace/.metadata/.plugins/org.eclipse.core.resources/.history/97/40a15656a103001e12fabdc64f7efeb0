@@ -1,0 +1,63 @@
+package iut.info1.sae.joueur;
+
+public class ToucheEvent {
+
+    private Joueur joueur;
+
+    public ToucheEvent() {
+
+    }
+
+    
+
+    public void handleKeyEvent(int input) {
+        char direction = getDirectionFromKey(input);
+        if (direction != '\0') {
+            if (this.joueur != null) {
+                boolean estDeplace;
+                estDeplace = joueur.deplacer(direction);
+
+                if (!estDeplace) {
+                    System.out.println("Ce mouvement est illégal.");
+                    return;
+                }
+
+                joueur.afficherLabyrintheJoueur();
+            }
+        }
+    }
+
+    private static char getDirectionFromKey(int input) {
+        switch (input) {
+            case 'N', 'n':
+                return 'N';
+            case 'S', 's':
+                return 'S';
+            case 'E', 'e':
+                return 'E';
+            case 'O', 'o':
+                return 'O';
+            default:
+                return '\0';
+        }
+    }
+
+    public void jouer(){
+        String mouvement;
+        while (estArrive) {
+            System.out.print("Prochain mouvement : ");
+            mouvement = scanner.nextline();
+            if (mouvement.length() == 1) {
+                
+            }
+        }
+    }
+
+    public Joueur getJoueur() {
+        return joueur;
+    }
+
+    public void setJoueur(Joueur joueur) {
+        this.joueur = joueur;
+    }
+}

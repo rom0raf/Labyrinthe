@@ -1,0 +1,248 @@
+/**
+ * CreationBacktracking.java  
+ * IUT rodez pas de droits d'auteurs
+ */
+package iut.info1.sae.create;
+
+import iut.info1.sae.labyrinthe.*;
+import iut.info1.sae.pile.Pile;
+
+import java.util.*;
+
+/**
+ * création d'un labyrinthe par méthode de backtracking
+ * @author Antonin veyre
+ * @author Lohan Vignals
+ * @author Rafael Roma
+ * @author Aurélien Soleil
+ */
+public class CreationBacktracking {
+    private int largeur;
+    private int hauteur;
+    private Cellule[][] cellules;
+
+    /**
+     * constructeur de CreationBacktracking
+     * @param largeur la largeur du labyritnhe(nombre de pièces)
+     * @param hauteur la hauteur du labyrinthe
+     */
+    public CreationBacktracking(int hauteur, int largeur) {
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+        this.cellules = new Cellule[hauteur][largeur];
+        initCellules();
+        genererLabyrinthe();
+        supprimerIlots();
+        supprimerIlotsInaccessibles();
+        
+    }
+
+    /**
+     * la fonction initialise toutes les cellules avec des murs de chaque côté
+     */
+    private void initCellules() {
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                boolean[] murs = { true, true, true, true };
+                cellules[i][j] = new Cellule(murs);
+            }
+        }
+    }
+
+    /**
+     * la fonction permet de générer le labyrinthe
+     * en partant d'une ligne et d'une colonne choisi au hasard
+     */
+    private void genererLabyrinthe() {
+        Random random = new Random();
+        int ligneDepart = random.nextInt(hauteur);
+        int colonneDepart = random.nextInt(largeur);
+        boolean[][] visitees = new boolean[hauteur][largeur];
+        genererChemin(cellules[ligneDepart][colonneDepart], visitees);
+    }
+    /**
+     * la fonction génère
+     */
+    private void genererChemin(Cellule cellule, boolean[][] visitees) {
+        int ligne = getLigneCellule(cellule);
+        int colonne = getColonneCellule(cellule);
+        visitees[ligne][colonne] = true;
+
+        List<Cellule> voisinesNonVisitees = getVoisinesNonVisitees(cellule, visitees);
+        while (!voisinesNonVisitees.isEmpty()) {
+            int indexVoisine = new Random().nextInt(voisinesNonVisitees.size());
+            Cellule voisine = voisinesNonVisitees.get(indexVoisine);
+            int ligneVoisine = getLigneCellule(voisine);
+            int colonneVoisine = getColonneCellule(voisine);
+
+            if (ligne == ligneVoisine - 1) {
+                cellule.setMurs(false, 2); // Supprimer le mur au sud de la cellule actuelle
+                voisine.setMurs(false, 0); // Supprimer le mur au nord de la cellule voisine
+            } else if (ligne == ligneVoisine + 1) {
+                cellule.setMurs(false, 0); // Supprimer le mur au nord de la cellule actuelle
+                voisine.setMurs(false, 2); // Supprimer le mur au sud de la cellule voisine
+            } else if (colonne == colonneVoisine - 1) {
+                cellule.setMurs(false, 1); // Supprimer le mur à l'est de la cellule actuelle
+                voisine.setMurs(false, 3); // Supprimer le mur à l'ouest de la cellule voisine
+            } else if (colonne == colonneVoisine + 1) {
+                cellule.setMurs(false, 3); // Supprimer le mur à l'ouest de la cellule actuelle
+                voisine.setMurs(false, 1); // Supprimer le mur à l'est de la cellule voisine
+            }
+
+            genererChemin(voisine, visitees);
+            voisinesNonVisitees = getVoisinesNonVisitees(cellule, visitees);
+        }
+    }
+
+    /**
+     * la fonction permet d'avoir les cellules voisines qui n'ont pas encore été visitées
+     * @return une liste avec les cellules voisines non visités
+     */
+    private List<Cellule> getVoisinesNonVisitees(Cellule cellule, boolean[][] visitees) {
+        List<Cellule> voisines = new ArrayList<>();
+        int ligne = getLigneCellule(cellule);
+        int colonne = getColonneCellule(cellule);
+
+        if (ligne > 0 && !visitees[ligne - 1][colonne]) {
+            voisines.add(cellules[ligne - 1][colonne]); // Voisin nord
+        }
+        if (ligne < hauteur - 1 && !visitees[ligne + 1][colonne]) {
+            voisines.add(cellules[ligne + 1][colonne]); // Voisin sud
+        }
+        if (colonne > 0 && !visitees[ligne][colonne - 1]) {
+            voisines.add(cellules[ligne][colonne - 1]); // Voisin ouest
+        }
+        if (colonne < largeur - 1 && !visitees[ligne][colonne + 1]) {
+            voisines.add(cellules[ligne][colonne + 1]); // Voisin est
+        }
+
+        return voisines;
+    }
+
+    /** @return le numéro de ligne de la cellule */
+    private int getLigneCellule(Cellule cellule) {
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (cellules[i][j] == cellule) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /** @return le nuémro de la colonne de la cellule */
+    private int getColonneCellule(Cellule cellule) {
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (cellules[i][j] == cellule) {
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * la fonction gère le cas particulier où il y a un ilot de 2*2 
+     */
+    private void supprimerIlots() {
+        for (int i = 0; i < hauteur - 1; i++) {
+            for (int j = 0; j < largeur - 1; j++) {
+                if (!cellules[i][j].estMurPresent('S') && !cellules[i][j].estMurPresent('E')
+                        && !cellules[i + 1][j].estMurPresent('E') && !cellules[i][j + 1].estMurPresent('S')
+                        && !cellules[i + 1][j + 1].estMurPresent('E') && !cellules[i + 1][j + 1].estMurPresent('S')) {
+                    cellules[i][j].setMurs(true, 2); // Ajouter le mur au sud de la cellule
+                    cellules[i + 1][j].setMurs(true, 1); // Ajouter le mur à l'est de la cellule
+                    cellules[i][j + 1].setMurs(true, 0); // Ajouter le mur au nord de la cellule
+                    cellules[i + 1][j + 1].setMurs(true, 3); // Ajouter le mur à l'ouest de la cellule
+                }
+            }
+        }
+    }
+
+    /**
+     * la fonction gère le cas où au moins une piece est inaccessible */
+    private void supprimerIlotsInaccessibles() {
+        boolean[][] visitees = new boolean[hauteur][largeur];
+        parcourirCellules(cellules[0][0], visitees);
+        for (int i = 0; i < hauteur; i++) {
+            for (int j = 0; j < largeur; j++) {
+                if (!visitees[i][j]) {
+                    cellules[i][j].setMurs(true, 0); // Ajouter le mur au nord de la cellule
+                    cellules[i][j].setMurs(true, 1); // Ajouter le mur à l'est de la cellule
+                    cellules[i][j].setMurs(true, 2); // Ajouter le mur au sud de la cellule
+                    cellules[i][j].setMurs(true, 3); // Ajouter le mur à l'ouest de la cellule
+                }
+            }
+        }
+    }
+
+    /**
+     * la fonction parcourt toutes les cellules voisines de la cellule passée en parametre
+     * @param cellule la cellule de départ
+     * @param visitees un boolean qui renvoie true si la cellule a déjà été visitées par l'algorithme, false sinon
+     */
+    private void parcourirCellules(Cellule cellule, boolean[][] visitees) {
+        int ligne = getLigneCellule(cellule);
+        int colonne = getColonneCellule(cellule);
+        visitees[ligne][colonne] = true;
+
+        List<Cellule> voisines = getVoisines(cellule);
+        for (Cellule voisine : voisines) {
+            int ligneVoisine = getLigneCellule(voisine);
+            int colonneVoisine = getColonneCellule(voisine);
+            if (!visitees[ligneVoisine][colonneVoisine]) {
+                parcourirCellules(voisine, visitees);
+            }
+        }
+    }
+
+    /**
+     * la fonction ajoute les cellules voisines de la cellule passée en parametre
+     * dans une liste 
+     * @param cellule une cellule du labyrinthe
+     * @return une liste contenant les cellules voisines de la cellule passée en  parametre
+     */
+    private List<Cellule> getVoisines(Cellule cellule) {
+        List<Cellule> voisines = new ArrayList<>();
+        int ligne = getLigneCellule(cellule);
+        int colonne = getColonneCellule(cellule);
+
+        if (ligne > 0) {
+            voisines.add(cellules[ligne - 1][colonne]); // Voisin nord
+        }
+        if (ligne < hauteur - 1) {
+            voisines.add(cellules[ligne + 1][colonne]); // Voisin sud
+        }
+        if (colonne > 0) {
+            voisines.add(cellules[ligne][colonne - 1]); // Voisin ouest
+        }
+        if (colonne < largeur - 1) {
+            voisines.add(cellules[ligne][colonne + 1]); // Voisin est
+        }
+        return voisines;
+    }
+    
+    /**
+     * 
+     * @param pieces
+     * @return le labyrinthe par création par backtracking
+     */
+    public Labyrinthe createLabyrinthe() {
+		Labyrinthe labyFinal = new Labyrinthe(hauteur,largeur);
+    	for (int i = 0; i < hauteur; i++) {
+    		for (int j = 0; j < largeur; j++) {
+    			boolean nord  = cellules[i][j].estMurPresent('N');
+    			boolean sud   = cellules[i][j].estMurPresent('S');
+    			boolean ouest = cellules[i][j].estMurPresent('O');
+    			boolean est   = cellules[i][j].estMurPresent('E');
+    			labyFinal.ajoutCellule(i, j, nord, sud, est, ouest);
+    		}
+    	}
+    	return labyFinal;
+    	
+    }
+
+}
+

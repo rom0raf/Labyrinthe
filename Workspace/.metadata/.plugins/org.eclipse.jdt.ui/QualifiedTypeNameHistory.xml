@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.google.gson.JsonObject"/>
+    <fullyQualifiedTypeName name="java.nio.file.FileAlreadyExistsException"/>
+    <fullyQualifiedTypeName name="java.io.FileReader"/>
+    <fullyQualifiedTypeName name="java.io.BufferedReader"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.solution.Resultat"/>
+    <fullyQualifiedTypeName name="java.awt.event.KeyListener"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.joueur.Joueur"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.joueur.ToucheEvent"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.create.CreationLabyrinthe"/>
+    <fullyQualifiedTypeName name="org.junit.jupiter.api.BeforeEach"/>
+    <fullyQualifiedTypeName name="javafx.fxml.FXMLLoader"/>
+    <fullyQualifiedTypeName name="java.awt.event.ActionEvent"/>
+    <fullyQualifiedTypeName name="javafx.application.Application"/>
+    <fullyQualifiedTypeName name="javafx.scene.control.Alert"/>
+    <fullyQualifiedTypeName name="java.io.File"/>
+    <fullyQualifiedTypeName name="com.google.gson.Gson"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.joueur.MenuLabyrinthe"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.save.Chargement"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.save.Sauvegarde"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.solution.Solution"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.labyrinthe.Cellule"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.labyrinthe.Labyrinthe"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.create.Create"/>
+    <fullyQualifiedTypeName name="java.util.Random"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="iut.info1.sae.create.CreationAscendante"/>
+    <fullyQualifiedTypeName name="java.util.Arrays"/>
+</qualifiedTypeNameHistroy>

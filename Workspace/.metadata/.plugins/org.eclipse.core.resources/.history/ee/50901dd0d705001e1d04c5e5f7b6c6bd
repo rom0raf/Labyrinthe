@@ -1,0 +1,25 @@
+/*
+ * PileVideException.java                                  24 mai 2023
+ * IUT Rodez, info1 2022-2023, ni copyright ni "copyleft"
+ */
+package iut.info1.sae.pile.err;
+
+/** 
+ * @author Antonin Veyre
+ *@author Rafael Roma
+ */
+public class PileVideException extends RuntimeException {
+
+    /** */
+    public PileVideException() {
+        super();
+    }
+
+    /** 
+     * @param message détail de l'erreur 
+     */
+    public PileVideException(String message) {
+        super(message);
+    }
+
+}
