@@ -1,3 +1,4 @@
+<div align="center">
 <br>LABYRINTHE</h1>
 
 <p align="center">
