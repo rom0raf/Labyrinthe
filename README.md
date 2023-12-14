@@ -4,7 +4,6 @@
 <p align="center">
 <img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="java" />
 </p>
-<img src="https://img.shields.io/github/license/rom0raf/Labyrinthe?style=flat&color=5D6D7E" alt="GitHub license" />
 <img src="https://img.shields.io/github/last-commit/rom0raf/Labyrinthe?style=flat&color=5D6D7E" alt="git-last-commit" />
 <img src="https://img.shields.io/github/commit-activity/m/rom0raf/Labyrinthe?style=flat&color=5D6D7E" alt="GitHub commit activity" />
 <img src="https://img.shields.io/github/languages/top/rom0raf/Labyrinthe?style=flat&color=5D6D7E" alt="GitHub top language" />
