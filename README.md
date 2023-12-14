@@ -1,8 +1,6 @@
 <div align="center">
 <h1 align="center">
 <br>LABYRINTHE</h1>
-<h3>◦ HTTPStatus Exception: 404</h3>
-<h3>◦ Developed with the software and tools below.</h3>
 
 <p align="center">
 <img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white" alt="java" />
